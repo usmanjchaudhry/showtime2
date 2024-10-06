@@ -8,7 +8,11 @@ import {
   CNavbarNav,
   CNavItem,
   CNavLink,
+  CButton,
+  CBadge,
 } from '@coreui/react'
+import { cilCart } from '@coreui/icons';
+
 
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
 
@@ -83,9 +87,12 @@ const AppHeader = () => {
             </CNavbarNav>
             <CNavbarNav className="ms-auto mb-2 mb-lg-0">
               <CNavItem>
-                <CNavLink href="#" className="text-black nav-link-hover-underline">
+                <CButton className="position-relative bg-white text-black">
                   Cart
-                </CNavLink>
+                  <CBadge color="danger" position="top-end" shape="rounded-pill">
+                    0 <span className="visually-hidden">unread messages</span>
+                  </CBadge>
+                </CButton>
               </CNavItem>
             </CNavbarNav>
           </CCollapse>
