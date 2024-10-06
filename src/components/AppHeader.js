@@ -11,8 +11,7 @@ import {
   CButton,
   CBadge,
 } from '@coreui/react'
-import { cilCart } from '@coreui/icons';
-
+import { cilCart } from '@coreui/icons'
 
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
 
@@ -80,7 +79,7 @@ const AppHeader = () => {
                 </CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="#" className="text-black nav-link-hover-underline">
+                <CNavLink href="#/schedule" className="text-black nav-link-hover-underline">
                   Schedule
                 </CNavLink>
               </CNavItem>
