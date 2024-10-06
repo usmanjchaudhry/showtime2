@@ -10,9 +10,17 @@ import {
   CCardBody,
   CCardText,
   CCardTitle,
+  CCardImageOverlay,
+  CForm,
+  CFormInput,
+  CFormText,
+  CInputGroup,
 } from '@coreui/react';
 import BrickHouseImg1 from '../../assets/images/brickHouseBoxing.webp';
 import BrickHouseImg2 from '../../assets/images/brickHouseBoxing2.webp';
+import ShowTimeImg1 from '../../assets/images/showtimeBoxing.webp';
+import ShowTimeImg2 from '../../assets/images/showtimeBoxing2.webp';
+import BrickHouseImg3 from '../../assets/images/brickHouseBoxingFlipped.png';
 
 const Dashboard = () => {
   return (
@@ -137,17 +145,67 @@ const Dashboard = () => {
 
           /* Custom styles for the card grid */
           .custom-gap {
-            --cui-row-gap: 3rem; /* Adjust the row gap */
-            --cui-column-gap: 3rem; /* Adjust the column gap */
+            --cui-row-gap: 4rem; /* Increased row gap */
+            --cui-column-gap: 4rem; /* Increased column gap */
+            margin: 2rem 0; /* Optional: add top and bottom margin to the grid */
           }
 
           /* Remove border around cards */
           .card-borderless {
             border: none;
           }
+
+          /* Ensure all card images are the same size */
+          .card-image {
+            width: 100%;
+            height: 300px; /* Set desired image height */
+            object-fit: cover;
+          }
+
+          /* Full-width card */
+          .full-width-card {
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+          }
+
+          .full-width-card-image {
+            width: 100%;
+            height: 700px; /* Adjust this value to reduce the height */
+            object-fit: cover;
+          }
+
+          /* Custom input styles */
+          .custom-input {
+            background-color: white !important;
+            color: black !important;
+          }
+
+          /* Placeholder styling */
+          .custom-input::placeholder {
+            color: gray;
+            opacity: 1;
+          }
+
+          .custom-input::-webkit-input-placeholder {
+            color: gray;
+          }
+
+          .custom-input::-moz-placeholder {
+            color: gray;
+          }
+
+          .custom-input:-ms-input-placeholder {
+            color: gray;
+          }
+
+          .custom-input::-ms-input-placeholder {
+            color: gray;
+          }
         `}
       </style>
 
+      {/* Carousel */}
       <div className="full-width-carousel">
         <CCarousel controls indicators interval={false}>
           {/* First Carousel Item: YouTube Video */}
@@ -195,9 +253,8 @@ const Dashboard = () => {
       {/* New Title and Paragraph Underneath the Carousel */}
       <div className="section-title-container">
         <h2 className="section-title">Welcome to Our Gym</h2>
-        <p className="section-subtitle">
-          Experience the ultimate training environment with state-of-the-art facilities and expert
-          trainers dedicated to your success.
+        <p className="section-subtitle mb-3">
+          Experience the ultimate training environment with state-of-the-art facilities and expert trainers dedicated to your success.
         </p>
       </div>
 
@@ -205,44 +262,92 @@ const Dashboard = () => {
       <CRow xs={{ cols: 1 }} md={{ cols: 3 }} className="custom-gap">
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={BrickHouseImg1} />
+            <CCardImage orientation="top" src={BrickHouseImg1} className="card-image" />
             <CCardBody>
-              <CCardTitle>Card Title</CCardTitle>
-              <CCardText className="text-black">
-                This is a wider card with supporting text below as a natural lead-in to additional
-                content. This card has even longer content than the first to show that equal height
-                action.
+              <CCardTitle className="text-center text-black">Training Programs</CCardTitle>
+              <CCardText className="text-black text-center">
+                Discover our diverse training programs designed for all fitness levels.
               </CCardText>
             </CCardBody>
           </CCard>
         </CCol>
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={BrickHouseImg1} />
+            <CCardImage orientation="top" src={ShowTimeImg1} className="card-image" />
             <CCardBody>
-              <CCardTitle>Card Title</CCardTitle>
-              <CCardText className="text-black">
-                This is a wider card with supporting text below as a natural lead-in to additional
-                content. This card has even longer content than the first to show that equal height
-                action.
+              <CCardTitle className="text-center text-black">Expert Trainers</CCardTitle>
+              <CCardText className="text-black text-center">
+                Meet our team of professional trainers committed to your success.
               </CCardText>
             </CCardBody>
           </CCard>
         </CCol>
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={BrickHouseImg1} />
+            <CCardImage orientation="top" src={ShowTimeImg2} className="card-image" />
             <CCardBody>
-              <CCardTitle>Card Title</CCardTitle>
-              <CCardText className="text-black">
-                This is a wider card with supporting text below as a natural lead-in to additional
-                content. This card has even longer content than the first to show that equal height
-                action.
+              <CCardTitle className="text-center text-black">
+                State-of-the-Art Facilities
+              </CCardTitle>
+              <CCardText className="text-black text-center">
+                Experience training in our modern, fully-equipped facilities.
               </CCardText>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
+
+      {/* Full-Width Card */}
+      <CCard className="mb-3 bg-dark text-white full-width-card">
+        <CCardImage src={BrickHouseImg3} className="full-width-card-image" />
+        <CCardImageOverlay>
+          <CCardTitle className="carousel-title">Join Our Community</CCardTitle>
+          <CCardText>
+            Become a part of our vibrant community where fitness meets fun. Our members support and motivate each other to reach new heights.
+          </CCardText>
+          <CCardText>
+            Access top-notch training programs designed by industry experts to help you achieve your personal fitness goals.
+          </CCardText>
+          <CCardText>
+            Enjoy our state-of-the-art facilities equipped with the latest technology and equipment.
+          </CCardText>
+          <CButton className="carousel-button">View Schedule</CButton>
+        </CCardImageOverlay>
+      </CCard>
+
+      {/* Email List Section */}
+      <div className="section-title-container">
+        <h2 className="section-title">Email List</h2>
+        <p className="section-subtitle mb-3">
+          Add yourself to our mailing list to keep up with special events and guest visits.
+        </p>
+      </div>
+      <CForm className="mb-3">
+        <div className="d-flex justify-content-center">
+          <CInputGroup style={{ maxWidth: '500px' }}>
+            <CFormInput
+              type="email"
+              id="exampleFormControlInput1"
+              placeholder="name@example.com"
+              aria-describedby="exampleFormControlInputHelpInline"
+              className="custom-input"
+              style={{
+                backgroundColor: 'white',
+                color: 'black',
+              }}
+            />
+            <CButton type="submit" className="bg-black text-white">
+              Submit
+            </CButton>
+          </CInputGroup>
+        </div>
+        <CFormText
+          id="exampleFormControlInputHelpInline"
+          className="text-black text-center"
+        >
+          Must be 8-20 characters long.
+        </CFormText>
+      </CForm>
     </>
   );
 };
