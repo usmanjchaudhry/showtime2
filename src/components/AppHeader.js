@@ -74,7 +74,7 @@ const AppHeader = () => {
                 </CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="#" className="text-black nav-link-hover-underline">
+                <CNavLink href="#/trainers" className="text-black nav-link-hover-underline">
                   Trainers
                 </CNavLink>
               </CNavItem>
