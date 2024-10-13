@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import {
   CCarousel,
   CCarouselItem,
@@ -15,12 +15,12 @@ import {
   CFormInput,
   CFormText,
   CInputGroup,
-} from '@coreui/react';
-import BrickHouseImg1 from '../../assets/images/brickHouseBoxing.webp';
-import BrickHouseImg2 from '../../assets/images/brickHouseBoxing2.webp';
-import ShowTimeImg1 from '../../assets/images/showtimeBoxing.webp';
-import ShowTimeImg2 from '../../assets/images/showtimeBoxing2.webp';
-import BrickHouseImg3 from '../../assets/images/brickHouseBoxingFlipped.png';
+} from '@coreui/react'
+import BrickHouseImg1 from '../../assets/images/brickHouseBoxing.webp'
+import BrickHouseImg2 from '../../assets/images/brickHouseBoxing2.webp'
+import ShowTimeImg1 from '../../assets/images/showtimeBoxing.webp'
+import ShowTimeImg2 from '../../assets/images/showtimeBoxing2.webp'
+import BrickHouseImg3 from '../../assets/images/brickHouseBoxingFlipped.png'
 
 const Dashboard = () => {
   return (
@@ -254,7 +254,8 @@ const Dashboard = () => {
       <div className="section-title-container">
         <h2 className="section-title">Welcome to Our Gym</h2>
         <p className="section-subtitle mb-3">
-          Experience the ultimate training environment with state-of-the-art facilities and expert trainers dedicated to your success.
+          Experience the ultimate training environment with state-of-the-art facilities and expert
+          trainers dedicated to your success.
         </p>
       </div>
 
@@ -303,10 +304,12 @@ const Dashboard = () => {
         <CCardImageOverlay>
           <CCardTitle className="carousel-title">Join Our Community</CCardTitle>
           <CCardText>
-            Become a part of our vibrant community where fitness meets fun. Our members support and motivate each other to reach new heights.
+            Become a part of our vibrant community where fitness meets fun. Our members support and
+            motivate each other to reach new heights.
           </CCardText>
           <CCardText>
-            Access top-notch training programs designed by industry experts to help you achieve your personal fitness goals.
+            Access top-notch training programs designed by industry experts to help you achieve your
+            personal fitness goals.
           </CCardText>
           <CCardText>
             Enjoy our state-of-the-art facilities equipped with the latest technology and equipment.
@@ -341,15 +344,12 @@ const Dashboard = () => {
             </CButton>
           </CInputGroup>
         </div>
-        <CFormText
-          id="exampleFormControlInputHelpInline"
-          className="text-black text-center"
-        >
+        <CFormText id="exampleFormControlInputHelpInline" className="text-black text-center">
           Must be 8-20 characters long.
         </CFormText>
       </CForm>
     </>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
