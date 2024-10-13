@@ -12,10 +12,6 @@ const Schedule = () => {
       key: 'class',
       _props: { scope: 'col' },
     },
-    {
-      key: 'description',
-      _props: { scope: 'col' },
-    },
   ]
   const items = [
     {
@@ -25,10 +21,6 @@ const Schedule = () => {
       _cellProps: {
         id: { scope: 'row', style: { backgroundColor: 'red', color: 'white', fontWeight: 'bold' } },
         class: {
-          scope: 'row',
-          style: { backgroundColor: 'red', color: 'white', fontWeight: 'bold' },
-        },
-        description: {
           scope: 'row',
           style: { backgroundColor: 'red', color: 'white', fontWeight: 'bold' },
         },

@@ -67,7 +67,7 @@ const AppHeader = () => {
           />
           {/* Navbar Collapse */}
           <CCollapse className="navbar-collapse" visible={visible}>
-            <CNavbarNav className="me-auto mb-2 mb-lg-0">
+            <CNavbarNav className="ms-auto mb-2 mb-lg-0">
               <CNavItem>
                 <CNavLink href="#" className="text-black nav-link-hover-underline">
                   Home
@@ -84,7 +84,7 @@ const AppHeader = () => {
                 </CNavLink>
               </CNavItem>
             </CNavbarNav>
-            <CNavbarNav className="ms-auto mb-2 mb-lg-0">
+            {/*<CNavbarNav className="ms-auto mb-2 mb-lg-0">
               <CNavItem>
                 <CButton className="position-relative bg-white text-black">
                   Cart
@@ -93,7 +93,7 @@ const AppHeader = () => {
                   </CBadge>
                 </CButton>
               </CNavItem>
-            </CNavbarNav>
+            </CNavbarNav>*/}
           </CCollapse>
         </CContainer>
       </CNavbar>
