@@ -60,7 +60,7 @@ const AppHeader = () => {
           ></CNavbarBrand>
           {/* Toggler */}
           <CNavbarToggler
-            className="bg-black border"
+            className="bg-white border"
             aria-label="Toggle navigation"
             aria-expanded={visible}
             onClick={() => setVisible(!visible)}
