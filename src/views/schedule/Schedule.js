@@ -308,43 +308,8 @@ const Schedule = () => {
       },
     },
     {
-      id: '7:00 am - 8:00 am',
-      class: 'Boxing for all',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '8:30 am - 9:30 am',
-      class: 'Boxing for all',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '3:30 pm - 4:15 pm',
-      class: 'Kids class (Ages 5 - 9)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '4:00 pm - 5:00 pm',
-      class: 'Youth Class (Ages 10 - 15)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '5:00 pm - 6:00 pm',
-      class: 'Youth Class (Ages 10 - 15)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '6:00 pm - 7:00 pm',
-      class: 'Advanced Class (All Ages)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '7:00 pm - 8:00 pm',
-      class: 'Boxing for all',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '8:30 pm - 10:00 pm',
-      class: 'Late boxing',
+      id: '7:00 am - 3:00 pm',
+      class: 'Open Gym until close',
       _cellProps: { id: { scope: 'row' } },
     },
     {
@@ -364,43 +329,18 @@ const Schedule = () => {
       },
     },
     {
-      id: '7:00 am - 8:00 am',
-      class: 'Boxing for all',
+      id: '7:00 am - 9:30 am',
+      class: 'Open Gym',
       _cellProps: { id: { scope: 'row' } },
     },
     {
-      id: '8:30 am - 9:30 am',
-      class: 'Boxing for all',
+      id: '9:30 am - 10:30 am',
+      class: 'Boxing Inferno Class ️‍🔥',
       _cellProps: { id: { scope: 'row' } },
     },
     {
-      id: '3:30 pm - 4:15 pm',
-      class: 'Kids class (Ages 5 - 9)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '4:00 pm - 5:00 pm',
-      class: 'Youth Class (Ages 10 - 15)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '5:00 pm - 6:00 pm',
-      class: 'Youth Class (Ages 10 - 15)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '6:00 pm - 7:00 pm',
-      class: 'Advanced Class (All Ages)',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '7:00 pm - 8:00 pm',
-      class: 'Boxing for all',
-      _cellProps: { id: { scope: 'row' } },
-    },
-    {
-      id: '8:30 pm - 10:00 pm',
-      class: 'Late boxing',
+      id: '10:30 am - 3:00 pm',
+      class: 'Open Gym until Close',
       _cellProps: { id: { scope: 'row' } },
     },
   ]
