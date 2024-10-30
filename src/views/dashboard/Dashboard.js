@@ -27,7 +27,7 @@ import showTimeImg5 from '../../assets/images/showTime8.png'
 import showTimeImg6 from '../../assets/images/showTime9.jpg'
 import showTimeImg7 from '../../assets/images/showTimeOutside.png'
 import showTimeImg8 from '../../assets/images/showTime2.png'
-
+import coachIvan from '../../assets/images/coachIvan.jpg'
 
 const Dashboard = () => {
   return (
@@ -234,9 +234,11 @@ const Dashboard = () => {
                 alt="Slide 2"
               />
             </div>
-            <div className="carousel-caption d-none d-md-block">
+            <div className="carousel-caption">
               <h1 className="carousel-title">Premier Boxing Performance Center</h1>
-              <CButton className="carousel-button">See Trainers</CButton>
+              <CButton href="#/schedule" className="carousel-button">
+                See Programs
+              </CButton>
             </div>
           </CCarouselItem>
 
@@ -248,9 +250,11 @@ const Dashboard = () => {
                 alt="Slide 3"
               />
             </div>
-            <div className="carousel-caption d-none d-md-block">
+            <div className="carousel-caption">
               <h1 className="carousel-title">Our Daily Class Schedule</h1>
-              <CButton className="carousel-button">See Schedule</CButton>
+              <CButton href="#/schedule" className="carousel-button">
+                See Schedule
+              </CButton>
             </div>
           </CCarouselItem>
         </CCarousel>
@@ -267,7 +271,7 @@ const Dashboard = () => {
       <CRow xs={{ cols: 1 }} md={{ cols: 3 }} className="custom-gap">
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={showTimeImg7} className="card-image" />
+            <CCardImage orientation="top" src={ShowTimeImg2} className="card-image" />
             <CCardBody>
               <CCardTitle className="text-center text-black">Training Programs</CCardTitle>
               <CCardText className="text-black text-center">
@@ -278,7 +282,7 @@ const Dashboard = () => {
         </CCol>
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={showTimeImg5} className="card-image" />
+            <CCardImage orientation="top" src={coachIvan} className="card-image" />
             <CCardBody>
               <CCardTitle className="text-center text-black">Expert Trainers</CCardTitle>
               <CCardText className="text-black text-center">
@@ -289,7 +293,7 @@ const Dashboard = () => {
         </CCol>
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={ShowTimeImg2} className="card-image" />
+            <CCardImage orientation="top" src={showTimeImg4} className="card-image" />
             <CCardBody>
               <CCardTitle className="text-center text-black">
                 State-of-the-Art Facilities
@@ -317,7 +321,9 @@ const Dashboard = () => {
           <CCardText>
             Enjoy our state-of-the-art facilities equipped with the latest technology and equipment.
           </CCardText>
-          <CButton className="carousel-button">View Schedule</CButton>
+          <CButton href="#/schedule" className="carousel-button">
+            View Schedule
+          </CButton>
         </CCardImageOverlay>
       </CCard>
       {/* Email List Section */}

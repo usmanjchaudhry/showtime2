@@ -1,6 +1,24 @@
 import React from 'react'
-import { CTable } from '@coreui/react'
-
+import {
+  CCarousel,
+  CCarouselItem,
+  CButton,
+  CRow,
+  CCol,
+  CCard,
+  CCardImage,
+  CCardBody,
+  CCardText,
+  CCardTitle,
+  CCardHeader,
+  CCardFooter,
+  CCardImageOverlay,
+  CForm,
+  CFormInput,
+  CFormText,
+  CInputGroup,
+  CTable,
+} from '@coreui/react'
 const Schedule = () => {
   const columns = [
     {
@@ -344,7 +362,29 @@ const Schedule = () => {
       _cellProps: { id: { scope: 'row' } },
     },
   ]
-  return <CTable columns={columns} items={items} />
+  return (
+    <>
+      {/* Inline CSS Styles */}
+      <style>
+        {`
+          .custom-red-card {
+            background-color: red;
+            color: white;
+            width: 100%;
+          }
+        `}
+      </style>
+
+      <CCard className="text-center mb-3 mt-3 custom-red-card">
+        <CCardBody>
+          <CCardTitle>Showtime Boxing Schedule 🥊</CCardTitle>
+        </CCardBody>
+      </CCard>
+
+      <CTable columns={columns} items={items} />
+    </>
+  )
 }
+
 
 export default Schedule

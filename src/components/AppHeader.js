@@ -48,7 +48,10 @@ const AppHeader = () => {
       <CNavbar expand="lg" className="bg-white shadow" placement="sticky-top">
         <CContainer fluid>
           {/* Logo Image */}
-          <img src={ShowtimeLogo} alt="Showtime Logo" width={80} height={80} />
+          {/* Logo Image with href */}
+          <a href="#">
+            <img src={ShowtimeLogo} alt="Showtime Logo" width={80} height={80} />
+          </a>
           {/* Brand for Large Screens */}
           <CNavbarBrand href="#" className="text-black fw-bold ps-2 d-none d-lg-block">
             Showtime Boxing Fitness
@@ -60,7 +63,7 @@ const AppHeader = () => {
           ></CNavbarBrand>
           {/* Toggler */}
           <CNavbarToggler
-            className="bg-white border"
+            className="bg-black border"
             aria-label="Toggle navigation"
             aria-expanded={visible}
             onClick={() => setVisible(!visible)}
@@ -73,11 +76,11 @@ const AppHeader = () => {
                   Home
                 </CNavLink>
               </CNavItem>
-              <CNavItem>
+              {/*     <CNavItem>
                 <CNavLink href="#/trainers" className="text-black nav-link-hover-underline">
                   Trainers
                 </CNavLink>
-              </CNavItem>
+              </CNavItem>*/}
               <CNavItem>
                 <CNavLink href="#/schedule" className="text-black nav-link-hover-underline">
                   Schedule
