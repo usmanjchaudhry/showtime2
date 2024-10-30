@@ -21,6 +21,13 @@ import BrickHouseImg2 from '../../assets/images/brickHouseBoxing2.webp'
 import ShowTimeImg1 from '../../assets/images/showtimeBoxing.webp'
 import ShowTimeImg2 from '../../assets/images/showtimeBoxing2.webp'
 import BrickHouseImg3 from '../../assets/images/brickHouseBoxingFlipped.png'
+import showTimeImg3 from '../../assets/images/showTime4.png'
+import showTimeImg4 from '../../assets/images/showTime6.png'
+import showTimeImg5 from '../../assets/images/showTime8.png'
+import showTimeImg6 from '../../assets/images/showTime9.jpg'
+import showTimeImg7 from '../../assets/images/showTimeOutside.png'
+import showTimeImg8 from '../../assets/images/showTime2.png'
+
 
 const Dashboard = () => {
   return (
@@ -204,12 +211,11 @@ const Dashboard = () => {
           }
         `}
       </style>
-
-      {/* Carousel */}
+      {/* Carousel */} {/* Carousel */}
       <div className="full-width-carousel">
         <CCarousel controls indicators interval={false}>
           {/* First Carousel Item: YouTube Video */}
-          <CCarouselItem>
+          {/*  <CCarouselItem>
             <div className="carousel-item-content">
               <iframe
                 src="https://www.youtube.com/embed/RBFmH5qd-mg?autoplay=1&mute=1"
@@ -224,7 +230,7 @@ const Dashboard = () => {
           <CCarouselItem>
             <div className="carousel-item-content">
               <img
-                src={BrickHouseImg1} // Replace with your image path
+                src={showTimeImg5} // Replace with your image path
                 alt="Slide 2"
               />
             </div>
@@ -238,7 +244,7 @@ const Dashboard = () => {
           <CCarouselItem>
             <div className="carousel-item-content">
               <img
-                src={BrickHouseImg2} // Replace with your image path
+                src={showTimeImg8} // Replace with your image path
                 alt="Slide 3"
               />
             </div>
@@ -249,7 +255,6 @@ const Dashboard = () => {
           </CCarouselItem>
         </CCarousel>
       </div>
-
       {/* New Title and Paragraph Underneath the Carousel */}
       <div className="section-title-container">
         <h2 className="section-title">Welcome to Our Gym</h2>
@@ -258,12 +263,11 @@ const Dashboard = () => {
           trainers dedicated to your success.
         </p>
       </div>
-
       {/* Card Grid */}
       <CRow xs={{ cols: 1 }} md={{ cols: 3 }} className="custom-gap">
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={BrickHouseImg1} className="card-image" />
+            <CCardImage orientation="top" src={showTimeImg7} className="card-image" />
             <CCardBody>
               <CCardTitle className="text-center text-black">Training Programs</CCardTitle>
               <CCardText className="text-black text-center">
@@ -274,7 +278,7 @@ const Dashboard = () => {
         </CCol>
         <CCol>
           <CCard className="h-100 card-borderless bg-white">
-            <CCardImage orientation="top" src={ShowTimeImg1} className="card-image" />
+            <CCardImage orientation="top" src={showTimeImg5} className="card-image" />
             <CCardBody>
               <CCardTitle className="text-center text-black">Expert Trainers</CCardTitle>
               <CCardText className="text-black text-center">
@@ -297,10 +301,9 @@ const Dashboard = () => {
           </CCard>
         </CCol>
       </CRow>
-
       {/* Full-Width Card */}
       <CCard className="mb-3 bg-dark text-white full-width-card">
-        <CCardImage src={BrickHouseImg3} className="full-width-card-image" />
+        <CCardImage src={showTimeImg6} className="full-width-card-image" />
         <CCardImageOverlay>
           <CCardTitle className="carousel-title">Join Our Community</CCardTitle>
           <CCardText>
@@ -317,9 +320,8 @@ const Dashboard = () => {
           <CButton className="carousel-button">View Schedule</CButton>
         </CCardImageOverlay>
       </CCard>
-
       {/* Email List Section */}
-      <div className="section-title-container">
+      {/*  <div className="section-title-container">
         <h2 className="section-title">Email List</h2>
         <p className="section-subtitle mb-3">
           Add yourself to our mailing list to keep up with special events and guest visits.
@@ -347,7 +349,7 @@ const Dashboard = () => {
         <CFormText id="exampleFormControlInputHelpInline" className="text-black text-center">
           Must be 8-20 characters long.
         </CFormText>
-      </CForm>
+      </CForm>*/}
     </>
   )
 }
