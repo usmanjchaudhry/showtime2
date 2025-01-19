@@ -1,36 +1,56 @@
-import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-
-import { CSpinner, useColorModes } from '@coreui/react'
+import React, { Suspense, useEffect, useState } from 'react'
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { CSpinner } from '@coreui/react'
 import './scss/style.scss'
+import { auth } from './firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
-// Containers
+// Layout
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
-// Pages
+// Public Pages
+const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Schedule = React.lazy(() => import('./views/schedule/Schedule'))
+
+// Auth Pages (restricted if logged in)
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
+
+// Protected Pages (only if logged in)
+const Memberships = React.lazy(() => import('./views/membership/Membership'))
+
+// Error Pages
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 
+// A ProtectedRoute: only for logged-in users
+function ProtectedRoute({ user, children }) {
+  if (!user) {
+    // if not logged in, go to login
+    return <Navigate to="/login" />
+  }
+  return children
+}
+
+// A RestrictedRoute: only for logged-out users
+function RestrictedRoute({ user, children }) {
+  if (user) {
+    // if already logged in, go to dashboard or home
+    return <Navigate to="/dashboard" />
+  }
+  return children
+}
+
 const App = () => {
-  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const storedTheme = useSelector((state) => state.theme)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
-    if (theme) {
-      setColorMode(theme)
-    }
-
-    if (isColorModeSet()) {
-      return
-    }
-
-    setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // Listen for Firebase Auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+    })
+    return () => unsubscribe()
+  }, [])
 
   return (
     <HashRouter>
@@ -42,11 +62,65 @@ const App = () => {
         }
       >
         <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          {/* 
+            =====================
+            PUBLIC ROUTES
+            =====================
+            All these are nested under the 'DefaultLayout' so they share the layout (header, footer).
+          */}
+          <Route path="/" element={<DefaultLayout />}>
+            {/* Publicly accessible routes */}
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="schedule" element={<Schedule />} />
+
+            {/* 
+             
+            */}
+            <Route
+              path="memberships"
+              element={
+                <ProtectedRoute user={user}>
+                  <Memberships />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+          {/* 
+            =====================
+            RESTRICTED ROUTES
+            (only for logged-out users)
+            =====================
+          */}
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute user={user}>
+                <Login />
+              </RestrictedRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute user={user}>
+                <Register />
+              </RestrictedRoute>
+            }
+          />
+
+          {/* 
+            =====================
+            ERROR / CATCH-ALL
+            =====================
+          */}
+          <Route path="/404" element={<Page404 />} />
+          <Route path="/500" element={<Page500 />} />
+          {/* 
+            Fallback for any unmatched route 
+            -> redirect to /dashboard 
+          */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
     </HashRouter>
