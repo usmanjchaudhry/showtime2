@@ -76,19 +76,18 @@ const Login = () => {
                           Login
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol>
+                      {/* 
+                        <CCol xs={6} className="text-right">
+                          <CButton color="link" className="px-0">
+                            Forgot password?
+                          </CButton>
+                        </CCol>
+                      */}
                     </CRow>
                   </CForm>
                   {/* Button to return to Dashboard */}
                   <div className="mt-3">
-                    <CButton
-                      color="secondary"
-                      onClick={() => navigate('/dashboard')}
-                    >
+                    <CButton color="secondary" onClick={() => navigate('/dashboard')}>
                       Return to Dashboard
                     </CButton>
                   </div>

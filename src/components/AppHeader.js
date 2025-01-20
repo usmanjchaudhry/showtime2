@@ -1,4 +1,5 @@
-// src/components/AppHeader.js (or wherever you store this file)
+// src/components/AppHeader.js
+
 import React, { useState, useEffect } from 'react'
 import {
   CContainer,
@@ -14,10 +15,12 @@ import {
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../firebase' // Adjust path if needed
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
+import { useNavigate } from 'react-router-dom' // Import navigate hook
 
 const AppHeader = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [user, setUser] = useState(null)
+  const navigate = useNavigate() // so we can programmatically navigate
 
   // Listen for Firebase Auth state changes
   useEffect(() => {
@@ -31,6 +34,8 @@ const AppHeader = () => {
     try {
       await signOut(auth)
       setIsExpanded(false)
+      // Automatically navigate user to dashboard upon successful logout
+      navigate('/dashboard') // or navigate('/') if you prefer
     } catch (error) {
       console.error('Logout failed:', error)
     }
