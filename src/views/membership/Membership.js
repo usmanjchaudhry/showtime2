@@ -1,5 +1,3 @@
-// src/views/pages/memberships/Memberships.js
-
 import React, { useEffect, useState } from 'react'
 import { auth } from '../../firebase'
 import {
@@ -12,13 +10,19 @@ import {
   CRow,
   CCol,
 } from '@coreui/react'
+import { useNavigate } from 'react-router-dom'
 
 const Memberships = () => {
   const [error, setError] = useState('')
   const [memberships, setMemberships] = useState([])
+  const navigate = useNavigate()
 
+  // We only fetch user memberships if user is logged in
   useEffect(() => {
-    fetchUserMemberships()
+    const user = auth.currentUser
+    if (user) {
+      fetchUserMemberships()
+    }
   }, [])
 
   async function fetchUserMemberships() {
@@ -26,13 +30,15 @@ const Memberships = () => {
     try {
       const user = auth.currentUser
       if (!user) {
-        setError('You must be logged in to view memberships.')
+        // If there's no user, skip fetching (no error, so the page can still show public info)
         return
       }
+
       const token = await user.getIdToken()
       const res = await fetch('http://localhost:8080/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
+
       if (!res.ok) {
         const text = await res.text()
         setError(text)
@@ -51,7 +57,7 @@ const Memberships = () => {
     }
   }
 
-  // A helper function to check if the user has an active membership of a certain type
+  // Helper to check if the user has an active membership of a certain type
   const hasActiveMembership = (type) => {
     return memberships.some((m) => m.type === type && m.isActive)
   }
@@ -60,8 +66,9 @@ const Memberships = () => {
     setError('')
     try {
       const user = auth.currentUser
+      // If user is not logged in, redirect to login
       if (!user) {
-        setError('You must be logged in to purchase memberships.')
+        navigate('/login')
         return
       }
       const token = await user.getIdToken()
@@ -85,6 +92,7 @@ const Memberships = () => {
         setError(`Failed to create checkout session: ${text}`)
         return
       }
+
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
@@ -101,8 +109,9 @@ const Memberships = () => {
     setError('')
     try {
       const user = auth.currentUser
+      // If not logged in (edge case), redirect or show error
       if (!user) {
-        setError('You must be logged in to cancel.')
+        navigate('/login')
         return
       }
       const token = await user.getIdToken()
@@ -148,9 +157,7 @@ const Memberships = () => {
           <strong>Buy a new membership</strong>
         </CCardHeader>
         <CCardBody>
-          <p className="text-secondary">
-            Choose one of our available membership plans below:
-          </p>
+          <p className="text-secondary">Choose one of our available membership plans below:</p>
           <CRow className="g-3">
             <CCol xs="12" sm="6">
               <CButton
@@ -231,7 +238,11 @@ const Memberships = () => {
               ))}
             </div>
           ) : (
-            <p className="text-secondary">No memberships found.</p>
+            <p className="text-secondary">
+              {!auth.currentUser
+                ? 'Log in to see your memberships.'
+                : 'No memberships found.'}
+            </p>
           )}
         </CCardBody>
         <CCardFooter className="bg-light">

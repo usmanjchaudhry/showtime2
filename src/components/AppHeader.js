@@ -1,5 +1,3 @@
-// src/components/AppHeader.js
-
 import React, { useState, useEffect } from 'react'
 import {
   CContainer,
@@ -13,14 +11,14 @@ import {
   CButton,
 } from '@coreui/react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { auth } from '../firebase' // Adjust path if needed
+import { auth } from '../firebase'
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
-import { useNavigate } from 'react-router-dom' // Import navigate hook
+import { useNavigate } from 'react-router-dom'
 
 const AppHeader = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [user, setUser] = useState(null)
-  const navigate = useNavigate() // so we can programmatically navigate
+  const navigate = useNavigate()
 
   // Listen for Firebase Auth state changes
   useEffect(() => {
@@ -35,7 +33,7 @@ const AppHeader = () => {
       await signOut(auth)
       setIsExpanded(false)
       // Automatically navigate user to dashboard upon successful logout
-      navigate('/dashboard') // or navigate('/') if you prefer
+      navigate('/dashboard')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -89,7 +87,7 @@ const AppHeader = () => {
           {/* Collapsible Nav */}
           <CCollapse className="navbar-collapse" visible={isExpanded}>
             <CNavbarNav className="ms-auto mb-2 mb-lg-0">
-              {/* Publicly Visible Links */}
+              {/* Links always visible */}
               <CNavItem>
                 <CNavLink href="#/dashboard" className="nav-link-hover-underline text-black">
                   Home
@@ -100,15 +98,16 @@ const AppHeader = () => {
                   Schedule
                 </CNavLink>
               </CNavItem>
+              {/* Memberships link now always visible */}
+              <CNavItem>
+                <CNavLink href="#/memberships" className="nav-link-hover-underline text-black">
+                  Memberships
+                </CNavLink>
+              </CNavItem>
 
               {user ? (
                 <>
                   {/* Logged-in Links */}
-                  <CNavItem>
-                    <CNavLink href="#/memberships" className="nav-link-hover-underline text-black">
-                      Memberships
-                    </CNavLink>
-                  </CNavItem>
                   <CNavItem>
                     <CButton color="link" onClick={handleLogout} className="px-0 text-black">
                       Logout
@@ -123,7 +122,6 @@ const AppHeader = () => {
                       Login
                     </CNavLink>
                   </CNavItem>
-                  {/* Removed Register link */}
                 </>
               )}
             </CNavbarNav>
