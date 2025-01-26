@@ -35,7 +35,8 @@ const Memberships = () => {
       }
 
       const token = await user.getIdToken()
-      const res = await fetch('http://localhost:8080/api/get-memberships', {
+      // Update the URL from localhost to your Render backend
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -74,7 +75,8 @@ const Memberships = () => {
       }
       const token = await user.getIdToken()
 
-      const res = await fetch('http://localhost:8080/api/create-checkout-session', {
+      // Update the URL from localhost to your Render backend
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,7 +118,8 @@ const Memberships = () => {
       }
       const token = await user.getIdToken()
 
-      const res = await fetch('http://localhost:8080/api/cancel-subscription', {
+      // Update the URL from localhost to your Render backend
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/cancel-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
