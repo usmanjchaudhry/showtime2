@@ -62,6 +62,7 @@ const Memberships = () => {
     return memberships.some((m) => m.type === type && m.isActive)
   }
 
+  // Handle user clicking "Buy" membership
   const handlePurchase = async (membershipType) => {
     setError('')
     try {
@@ -105,6 +106,7 @@ const Memberships = () => {
     }
   }
 
+  // Handle user canceling an existing membership
   const handleCancel = async (subscriptionId) => {
     setError('')
     try {
@@ -158,38 +160,60 @@ const Memberships = () => {
         </CCardHeader>
         <CCardBody>
           <p className="text-secondary">Choose one of our available membership plans below:</p>
+
           <CRow className="g-3">
-            <CCol xs="12" sm="6">
-              <CButton
-                color="primary"
-                className="w-100"
-                disabled={isBasicActive} // disable if user has "basic" active
-                onClick={() => {
-                  if (isBasicActive) {
-                    alert('You already have this subscription!')
-                  } else {
-                    handlePurchase('basic')
-                  }
-                }}
-              >
-                Buy Basic Membership
-              </CButton>
+            {/* Basic Membership Card */}
+            <CCol xs={12} sm={6}>
+              <CCard className="h-100">
+                <CCardHeader>
+                  <h4 className="mb-0">Basic Membership</h4>
+                </CCardHeader>
+                <CCardBody>
+                  <h2>$140</h2>
+                  <p className="text-muted">Our Basic plan offers great value for anyone looking to get started.</p>
+                  <CButton
+                    color="primary"
+                    disabled={isBasicActive}
+                    onClick={() => {
+                      if (isBasicActive) {
+                        alert('You already have this subscription!')
+                      } else {
+                        handlePurchase('basic')
+                      }
+                    }}
+                  >
+                    {isBasicActive ? 'Already Active' : 'Buy Basic'}
+                  </CButton>
+                </CCardBody>
+              </CCard>
             </CCol>
-            <CCol xs="12" sm="6">
-              <CButton
-                color="info"
-                className="w-100"
-                disabled={isPremiumActive} // disable if user has "premium" active
-                onClick={() => {
-                  if (isPremiumActive) {
-                    alert('You already have this subscription!')
-                  } else {
-                    handlePurchase('premium')
-                  }
-                }}
-              >
-                Buy Premium Membership
-              </CButton>
+
+            {/* Premium Membership Card */}
+            <CCol xs={12} sm={6}>
+              <CCard className="h-100">
+                <CCardHeader>
+                  <h4 className="mb-0">Premium Membership</h4>
+                </CCardHeader>
+                <CCardBody>
+                  <h2>$199</h2>
+                  <p className="text-muted">
+                    Step up to our Premium plan for exclusive perks, advanced training sessions, and more.
+                  </p>
+                  <CButton
+                    color="info"
+                    disabled={isPremiumActive}
+                    onClick={() => {
+                      if (isPremiumActive) {
+                        alert('You already have this subscription!')
+                      } else {
+                        handlePurchase('premium')
+                      }
+                    }}
+                  >
+                    {isPremiumActive ? 'Already Active' : 'Buy Premium'}
+                  </CButton>
+                </CCardBody>
+              </CCard>
             </CCol>
           </CRow>
         </CCardBody>
@@ -239,9 +263,7 @@ const Memberships = () => {
             </div>
           ) : (
             <p className="text-secondary">
-              {!auth.currentUser
-                ? 'Log in to see your memberships.'
-                : 'No memberships found.'}
+              {!auth.currentUser ? 'Log in to see your memberships.' : 'No memberships found.'}
             </p>
           )}
         </CCardBody>
