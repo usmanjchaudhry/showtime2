@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   CContainer,
   CNavbar,
@@ -9,18 +9,38 @@ import {
   CNavItem,
   CNavLink,
   CButton,
-  CBadge,
 } from '@coreui/react'
-import { cilCart } from '@coreui/icons'
-
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { auth } from '../firebase'
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
+import { useNavigate } from 'react-router-dom'
 
 const AppHeader = () => {
-  const [visible, setVisible] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [user, setUser] = useState(null)
+  const navigate = useNavigate()
+
+  // Listen for Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser)
+    })
+    return () => unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      setIsExpanded(false)
+      // Automatically navigate user to dashboard upon successful logout
+      navigate('/dashboard')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   return (
     <>
-      {/* Inline CSS Styles */}
       <style>
         {`
           .nav-link-hover-underline {
@@ -34,7 +54,7 @@ const AppHeader = () => {
             bottom: 0;
             left: 0;
             width: 0%;
-            height: 2px; /* Adjust the height to change the underline thickness */
+            height: 2px;
             background-color: currentColor;
             transition: width 0.3s ease-in-out;
           }
@@ -47,56 +67,64 @@ const AppHeader = () => {
 
       <CNavbar expand="lg" className="bg-white shadow" placement="sticky-top">
         <CContainer fluid>
-          {/* Logo Image */}
-          {/* Logo Image with href */}
-          <a href="#">
+          {/* Logo & Brand */}
+          <a href="#/">
             <img src={ShowtimeLogo} alt="Showtime Logo" width={80} height={80} />
           </a>
-          {/* Brand for Large Screens */}
-          <CNavbarBrand href="#" className="text-black fw-bold ps-2 d-none d-lg-block">
+          <CNavbarBrand href="#/" className="text-black fw-bold ps-2 d-none d-lg-block">
             Showtime Boxing Fitness
           </CNavbarBrand>
-          {/* Brand for Small and Medium Screens */}
-          <CNavbarBrand
-            href="#"
-            className="text-black fw-bold ps-2 d-block d-lg-none"
-          ></CNavbarBrand>
-          {/* Toggler */}
+          <CNavbarBrand href="#/" className="text-black fw-bold ps-2 d-block d-lg-none" />
+
+          {/* Toggler (for mobile) */}
           <CNavbarToggler
             className="bg-black border"
             aria-label="Toggle navigation"
-            aria-expanded={visible}
-            onClick={() => setVisible(!visible)}
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded(!isExpanded)}
           />
-          {/* Navbar Collapse */}
-          <CCollapse className="navbar-collapse" visible={visible}>
+
+          {/* Collapsible Nav */}
+          <CCollapse className="navbar-collapse" visible={isExpanded}>
             <CNavbarNav className="ms-auto mb-2 mb-lg-0">
+              {/* Links always visible */}
               <CNavItem>
-                <CNavLink href="#" className="text-black nav-link-hover-underline">
+                <CNavLink href="#/dashboard" className="nav-link-hover-underline text-black">
                   Home
                 </CNavLink>
               </CNavItem>
-              {/*     <CNavItem>
-                <CNavLink href="#/trainers" className="text-black nav-link-hover-underline">
-                  Trainers
-                </CNavLink>
-              </CNavItem>*/}
               <CNavItem>
-                <CNavLink href="#/schedule" className="text-black nav-link-hover-underline">
+                <CNavLink href="#/schedule" className="nav-link-hover-underline text-black">
                   Schedule
                 </CNavLink>
               </CNavItem>
-            </CNavbarNav>
-            {/*<CNavbarNav className="ms-auto mb-2 mb-lg-0">
+              {/* Memberships link now always visible */}
               <CNavItem>
-                <CButton className="position-relative bg-white text-black">
-                  Cart
-                  <CBadge color="danger" position="top-end" shape="rounded-pill">
-                    0 <span className="visually-hidden">unread messages</span>
-                  </CBadge>
-                </CButton>
+                <CNavLink href="#/memberships" className="nav-link-hover-underline text-black">
+                  Memberships
+                </CNavLink>
               </CNavItem>
-            </CNavbarNav>*/}
+
+              {user ? (
+                <>
+                  {/* Logged-in Links */}
+                  <CNavItem>
+                    <CButton color="link" onClick={handleLogout} className="px-0 text-black">
+                      Logout
+                    </CButton>
+                  </CNavItem>
+                </>
+              ) : (
+                <>
+                  {/* Logged-out Links */}
+                  <CNavItem>
+                    <CNavLink href="#/login" className="nav-link-hover-underline text-black">
+                      Login
+                    </CNavLink>
+                  </CNavItem>
+                </>
+              )}
+            </CNavbarNav>
           </CCollapse>
         </CContainer>
       </CNavbar>
