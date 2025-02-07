@@ -72,7 +72,7 @@ const AppHeader = () => {
             <img src={ShowtimeLogo} alt="Showtime Logo" width={80} height={80} />
           </a>
           <CNavbarBrand href="#/" className="text-black fw-bold ps-2 d-none d-lg-block">
-            Showtime Boxing Fitness
+            Showtime Boxing
           </CNavbarBrand>
           <CNavbarBrand href="#/" className="text-black fw-bold ps-2 d-block d-lg-none" />
 
