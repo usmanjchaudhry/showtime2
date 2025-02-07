@@ -43,7 +43,7 @@ const Memberships = () => {
     try {
       const token = await firebaseUser.getIdToken()
       // Update the URL from localhost to your Render backend if needed
-      const res = await fetch('http://localhost:8080/api/get-memberships', {
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -81,7 +81,7 @@ const Memberships = () => {
       const token = await user.getIdToken()
 
       // Update the URL from localhost to your Render backend if needed
-      const res = await fetch('http://localhost:8080/api/create-checkout-session', {
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
