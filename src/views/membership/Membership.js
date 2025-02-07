@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../../firebase'
 import {
   CButton,
@@ -15,46 +16,51 @@ import { useNavigate } from 'react-router-dom'
 const Memberships = () => {
   const [error, setError] = useState('')
   const [memberships, setMemberships] = useState([])
+  const [isLoading, setIsLoading] = useState(true) // Track loading state
+  const [user, setUser] = useState(null) // Track the current user
   const navigate = useNavigate()
 
-  // We only fetch user memberships if user is logged in
+  // Listen for changes in Firebase Auth state
   useEffect(() => {
-    const user = auth.currentUser
-    if (user) {
-      fetchUserMemberships()
-    }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser)
+        fetchUserMemberships(firebaseUser)
+      } else {
+        setUser(null)
+        setMemberships([])
+        setIsLoading(false)
+      }
+    })
+
+    return () => unsubscribe() // Cleanup subscription on unmount
   }, [])
 
-  async function fetchUserMemberships() {
+  // Fetch user memberships from the backend
+  async function fetchUserMemberships(firebaseUser) {
     setError('')
+    setIsLoading(true)
     try {
-      const user = auth.currentUser
-      if (!user) {
-        // If there's no user, skip fetching
-        return
-      }
-
-      const token = await user.getIdToken()
-      // Update the URL from localhost to your Render backend
-      const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
+      const token = await firebaseUser.getIdToken()
+      // Update the URL from localhost to your Render backend if needed
+      const res = await fetch('http://localhost:8080/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       if (!res.ok) {
         const text = await res.text()
         setError(text)
+        setIsLoading(false)
         return
       }
 
       const data = await res.json()
-      if (!Array.isArray(data)) {
-        setMemberships([])
-      } else {
-        setMemberships(data)
-      }
+      setMemberships(Array.isArray(data) ? data : [])
     } catch (err) {
       console.error(err)
       setError('Error fetching memberships')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -67,7 +73,6 @@ const Memberships = () => {
   const handlePurchase = async (membershipType) => {
     setError('')
     try {
-      const user = auth.currentUser
       // If user is not logged in, redirect to login
       if (!user) {
         navigate('/login')
@@ -75,8 +80,8 @@ const Memberships = () => {
       }
       const token = await user.getIdToken()
 
-      // Update the URL from localhost to your Render backend
-      const res = await fetch('https://showtime-backend-1.onrender.com/api/create-checkout-session', {
+      // Update the URL from localhost to your Render backend if needed
+      const res = await fetch('http://localhost:8080/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,42 +112,26 @@ const Memberships = () => {
     }
   }
 
-  // Handle user canceling an existing membership
-  const handleCancel = async (subscriptionId) => {
-    setError('')
-    try {
-      const user = auth.currentUser
-      if (!user) {
-        navigate('/login')
-        return
-      }
-      const token = await user.getIdToken()
-
-      // Update the URL from localhost to your Render backend
-      const res = await fetch('https://showtime-backend-1.onrender.com/api/cancel-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ subscriptionId }),
-      })
-      if (!res.ok) {
-        const text = await res.text()
-        setError(text)
-        return
-      }
-      // Refresh memberships
-      fetchUserMemberships()
-    } catch (err) {
-      console.error(err)
-      setError('Error canceling subscription')
-    }
-  }
-
-  // Determine if user has basic/premium active
   const isBasicActive = hasActiveMembership('basic')
   const isPremiumActive = hasActiveMembership('premium')
+
+  // Render a spinner or message while loading
+  if (isLoading) {
+    return (
+      <div style={{ padding: '2rem' }}>
+        <h2>Loading memberships...</h2>
+      </div>
+    )
+  }
+
+  // If user is not logged in, show a message
+  if (!user) {
+    return (
+      <div style={{ padding: '2rem' }}>
+        <h2>Please log in to see your memberships.</h2>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -291,7 +280,7 @@ const Memberships = () => {
                       <h5 className="mb-0 text-capitalize">{m.type} Membership</h5>
                     </CCardHeader>
                     <CCardBody>
-                      <p className="text-muted mb-2">
+                      <p className="text-muted mb-0">
                         Status:{' '}
                         <span
                           style={{
@@ -302,28 +291,17 @@ const Memberships = () => {
                           {m.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </p>
-                      {m.isActive && m.subscriptionId && (
-                        <CButton
-                          color="danger"
-                          variant="outline"
-                          onClick={() => handleCancel(m.subscriptionId)}
-                        >
-                          Cancel
-                        </CButton>
-                      )}
                     </CCardBody>
                   </CCard>
                 ))}
               </div>
             ) : (
-              <p className="text-secondary">
-                {!auth.currentUser ? 'Log in to see your memberships.' : 'No memberships found.'}
-              </p>
+              <p className="text-secondary">No memberships found.</p>
             )}
           </CCardBody>
           <CCardFooter className="bg-light">
             <small className="text-muted">
-              Here you can manage or cancel your existing memberships at any time.
+              Here you can view your existing memberships at any time.
             </small>
           </CCardFooter>
         </CCard>
