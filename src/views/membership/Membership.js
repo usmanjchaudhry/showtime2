@@ -33,7 +33,7 @@ const Memberships = () => {
       }
     })
 
-    return () => unsubscribe() // Cleanup subscription on unmount
+    return () => unsubscribe() // Cleanup on unmount
   }, [])
 
   // Fetch user memberships from the backend
@@ -110,8 +110,12 @@ const Memberships = () => {
     }
   }
 
+  // Track active states
   const isBasicActive = hasActiveMembership('basic')
   const isPremiumActive = hasActiveMembership('premium')
+  const isTipActive = hasActiveMembership('tip') 
+    // If you want to track tip as "Active" membership, 
+    // or you can always enable it if it’s just a donation.
 
   // Render a spinner or message while loading
   if (isLoading) {
@@ -202,7 +206,7 @@ const Memberships = () => {
             </p>
             <CRow className="g-3">
               {/* Basic Membership Card */}
-              <CCol xs={12} sm={6}>
+              <CCol xs={12} sm={4}>
                 <CCard className="h-100 membership-card">
                   <CCardHeader className="membership-card-header">
                     <h4 className="mb-0">Basic Membership</h4>
@@ -230,7 +234,7 @@ const Memberships = () => {
               </CCol>
 
               {/* Premium Membership Card */}
-              <CCol xs={12} sm={6}>
+              <CCol xs={12} sm={4}>
                 <CCard className="h-100 membership-card">
                   <CCardHeader className="membership-card-header">
                     <h4 className="mb-0">Premium Membership</h4>
@@ -256,6 +260,35 @@ const Memberships = () => {
                   </CCardBody>
                 </CCard>
               </CCol>
+
+              {/* Tip Option */}
+              <CCol xs={12} sm={4}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">Tip</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$1</div>
+                    <p className="text-muted">
+                      Show your support by leaving a tip!
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      disabled={isTipActive}
+                      onClick={() => {
+                        if (isTipActive) {
+                          alert('You already have this subscription!')
+                        } else {
+                          handlePurchase('tip')
+                        }
+                      }}
+                    >
+                      {isTipActive ? 'Already Tipped' : 'Leave a Tip'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+
             </CRow>
           </CCardBody>
         </CCard>
