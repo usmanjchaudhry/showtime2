@@ -16,8 +16,9 @@ const Schedule = React.lazy(() => import('./views/schedule/Schedule'))
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 
-// Protected Pages (only if logged in)
+// Protected Pages
 const Memberships = React.lazy(() => import('./views/membership/Membership'))
+const ConsentForm = React.lazy(() => import('./views/consent/ConsentForm'))
 
 // Error Pages
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
@@ -26,7 +27,7 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 // A ProtectedRoute: only for logged-in users
 function ProtectedRoute({ user, children }) {
   if (!user) {
-    // if not logged in, go to login
+    // If not logged in, go to login
     return <Navigate to="/login" />
   }
   return children
@@ -35,7 +36,7 @@ function ProtectedRoute({ user, children }) {
 // A RestrictedRoute: only for logged-out users
 function RestrictedRoute({ user, children }) {
   if (user) {
-    // if already logged in, go to dashboard or home
+    // If already logged in, go to dashboard
     return <Navigate to="/dashboard" />
   }
   return children
@@ -62,20 +63,15 @@ const App = () => {
         }
       >
         <Routes>
-          {/* 
-            =====================
-            PUBLIC ROUTES
-            =====================
-            All these are nested under the 'DefaultLayout' so they share the layout (header, footer).
-          */}
+          {/* =====================
+              PUBLIC LAYOUT
+             ===================== */}
           <Route path="/" element={<DefaultLayout />}>
             {/* Publicly accessible routes */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="schedule" element={<Schedule />} />
 
-            {/* 
-             
-            */}
+            {/* PROTECTED ROUTES (for logged-in users) */}
             <Route
               path="memberships"
               element={
@@ -84,14 +80,20 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="consent"
+              element={
+                <ProtectedRoute user={user}>
+                  <ConsentForm />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
-          {/* 
-            =====================
-            RESTRICTED ROUTES
-            (only for logged-out users)
-            =====================
-          */}
+          {/* =====================
+              RESTRICTED ROUTES
+              (only if logged-out)
+             ===================== */}
           <Route
             path="/login"
             element={
@@ -109,17 +111,13 @@ const App = () => {
             }
           />
 
-          {/* 
-            =====================
-            ERROR / CATCH-ALL
-            =====================
-          */}
+          {/* =====================
+              ERROR / CATCH-ALL
+             ===================== */}
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
-          {/* 
-            Fallback for any unmatched route 
-            -> redirect to /dashboard 
-          */}
+
+          {/* Fallback for any unmatched route -> redirect to /dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
