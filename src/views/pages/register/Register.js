@@ -56,7 +56,7 @@ const Register = () => {
 
           .carousel-item-content {
             width: 100vw;
-            height: 80vh; /* Set desired consistent height */
+            height: 80vh;
             overflow: hidden;
             position: relative;
           }
@@ -104,7 +104,7 @@ const Register = () => {
           }
 
           .carousel-title {
-            font-size: 3rem; /* Adjust the size as needed */
+            font-size: 3rem;
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
@@ -273,18 +273,25 @@ const Register = () => {
                     </CInputGroup>
 
                     <div className="d-grid">
-                      {/* Use the custom red button style */}
                       <CButton type="submit" className="carousel-button">
                         Create Account
                       </CButton>
                     </div>
                   </CForm>
 
-                  {/* Button to return to Dashboard */}
-                  <div className="mt-3">
-                    {/* Also use the custom red button style */}
-                    <CButton className="carousel-button" onClick={() => navigate('/dashboard')}>
+                  {/* Return Buttons with spacing */}
+                  <div className="mt-4 d-flex">
+                    <CButton
+                      className="carousel-button me-3"
+                      onClick={() => navigate('/dashboard')}
+                    >
                       Return to Dashboard
+                    </CButton>
+                    <CButton
+                      className="carousel-button ms-3"
+                      onClick={() => navigate('/login')}
+                    >
+                      Return to Login
                     </CButton>
                   </div>
                 </CCardBody>
