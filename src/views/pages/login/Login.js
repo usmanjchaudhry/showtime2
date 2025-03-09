@@ -28,17 +28,18 @@ const Login = () => {
     e.preventDefault()
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      // On successful login, redirect to your dashboard or home page:
+      // On successful login, redirect to your dashboard
       navigate('/dashboard')
     } catch (error) {
-      console.error(error)
-      alert(`Login failed: ${error.message}`)
+      console.error('[Login] Error signing in:', error)
+      // Show a pop-up specifically saying wrong username or password
+      alert('Wrong username or password.')
     }
   }
 
   return (
     <>
-      {/* Inline CSS Styles (copied from Dashboard) */}
+      {/* Inline CSS Styles */}
       <style>
         {`
           .full-width-carousel {
@@ -49,7 +50,7 @@ const Login = () => {
 
           .carousel-item-content {
             width: 100vw;
-            height: 80vh; /* Set desired consistent height */
+            height: 80vh;
             overflow: hidden;
             position: relative;
           }
@@ -69,11 +70,9 @@ const Login = () => {
             padding: 0;
           }
 
-          /* Custom styles for carousel controls and indicators */
           .carousel-control-prev-icon,
           .carousel-control-next-icon {
             filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-            background-color: red;
             width: 50px;
             height: 50px;
           }
@@ -97,7 +96,7 @@ const Login = () => {
           }
 
           .carousel-title {
-            font-size: 3rem; /* Adjust the size as needed */
+            font-size: 3rem;
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
@@ -128,7 +127,6 @@ const Login = () => {
             }
           }
 
-          /* Section titles */
           .section-title-container {
             text-align: center;
             margin-top: 2rem;
@@ -152,7 +150,6 @@ const Login = () => {
             }
           }
 
-          /* Card Grid */
           .custom-gap {
             --cui-row-gap: 4rem;
             --cui-column-gap: 4rem;
@@ -167,7 +164,6 @@ const Login = () => {
             object-fit: cover;
           }
 
-          /* Full-width card */
           .full-width-card {
             width: 100vw;
             margin-left: calc(50% - 50vw);
@@ -179,25 +175,11 @@ const Login = () => {
             object-fit: cover;
           }
 
-          /* Custom input */
           .custom-input {
             background-color: white !important;
             color: black !important;
           }
           .custom-input::placeholder {
-            color: gray;
-            opacity: 1;
-          }
-          .custom-input::-webkit-input-placeholder {
-            color: gray;
-          }
-          .custom-input::-moz-placeholder {
-            color: gray;
-          }
-          .custom-input:-ms-input-placeholder {
-            color: gray;
-          }
-          .custom-input::-ms-input-placeholder {
             color: gray;
           }
         `}
@@ -238,7 +220,6 @@ const Login = () => {
                       </CInputGroup>
                       <CRow>
                         <CCol xs={6}>
-                          {/* Use the custom red button style */}
                           <CButton type="submit" className="carousel-button px-4">
                             Login
                           </CButton>
@@ -258,8 +239,18 @@ const Login = () => {
                     <div>
                       <h2>Sign up</h2>
                       <p>Don&apos;t have an account yet?</p>
+                      {/* Make this register button distinctly red */}
                       <CButton
-                        className="carousel-button mt-3"
+                        className="mt-3"
+                        style={{
+                          backgroundColor: 'red',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '0.75rem 1.5rem',
+                          fontSize: '1.25rem',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
                         onClick={() => navigate('/register')}
                         active
                         tabIndex={-1}
