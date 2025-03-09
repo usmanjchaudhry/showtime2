@@ -48,7 +48,7 @@ const Memberships = () => {
     setError('')
     setIsLoading(true)
     try {
-      const res = await fetch('http://localhost:8080/api/get-memberships', {
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -73,7 +73,7 @@ const Memberships = () => {
   async function fetchUserConsent(token) {
     setIsConsentLoading(true)
     try {
-      const res = await fetch('http://localhost:8080/api/fetch-consent', {
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/fetch-consent', {
         headers: { Authorization: `Bearer ${token}` },
       })
 
