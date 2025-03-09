@@ -235,7 +235,7 @@ const ConsentForm = () => {
 
       // 4) Send data to backend
       const token = await currentUser.getIdToken()
-      const res = await fetch('http://localhost:8080/api/submit-consent', {
+      const res = await fetch('https://showtime-backend-1.onrender/api/submit-consent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
