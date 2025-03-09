@@ -233,7 +233,7 @@ const ConsentForm = () => {
       await uploadString(storageRef, pdfBase64, 'data_url')
       const pdfDownloadURL = await getDownloadURL(storageRef)
 
-      // 4) Send data to backend
+      // 4) Send data to backend please
       const token = await currentUser.getIdToken()
       const res = await fetch('https://showtime-backend-1.onrender.com/api/submit-consent', {
         method: 'POST',
