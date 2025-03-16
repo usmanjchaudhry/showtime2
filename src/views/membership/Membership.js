@@ -133,7 +133,7 @@ const Memberships = () => {
       setError('Error creating checkout session')
     }
   }
-
+//extra comment
   // 5) Helper to check if user has an active membership of a certain type
   const hasActiveMembership = (type) => {
     return memberships.some((m) => m.type === type && m.isActive)
