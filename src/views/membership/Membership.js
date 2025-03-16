@@ -48,6 +48,7 @@ const Memberships = () => {
     setError('')
     setIsLoading(true)
     try {
+      //const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
       const res = await fetch('https://showtime-backend-1.onrender.com/api/get-memberships', {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -73,6 +74,7 @@ const Memberships = () => {
   async function fetchUserConsent(token) {
     setIsConsentLoading(true)
     try {
+     // const res = await fetch('https://showtime-backend-1.onrender.com/api/fetch-consent', {
       const res = await fetch('https://showtime-backend-1.onrender.com/api/fetch-consent', {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -100,7 +102,8 @@ const Memberships = () => {
         return
       }
       const token = await user.getIdToken()
-      const res = await fetch('http://localhost:8080/api/create-checkout-session', {
+      //const res = await fetch('https://showtime-backend-1.onrender.com/api/create-checkout-session', {
+      const res = await fetch('https://showtime-backend-1.onrender.com/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,9 +157,14 @@ const Memberships = () => {
     )
   }
 
+  // Check if user already has certain memberships
   const isBasicActive = hasActiveMembership('basic')
   const isPremiumActive = hasActiveMembership('premium')
-  // We ignore tipActive
+  const isCoachSpecialActive = hasActiveMembership('coach_special')
+  const isDoubleMembershipActive = hasActiveMembership('double_membership')
+  const isOpenGymAccessActive = hasActiveMembership('open_gym_access')
+  const isTwoClassesActive = hasActiveMembership('two_classes')
+  const isOneDayPassActive = hasActiveMembership('one_day_pass')
 
   // --- Styles ---
   return (
@@ -253,7 +261,16 @@ const Memberships = () => {
             <p className="text-secondary mb-4">
               Choose one of our membership plans below to start your fitness journey with us.
             </p>
-            <CRow className="g-3">
+
+            {/* 
+              We'll display these in multiple rows:
+                Row 1: Basic / Premium
+                Row 2: Coach Special / Double Membership
+                Row 3: Open Gym Access / Two Classes
+                Row 4: One Day Pass (alone)
+            */}
+            
+            <CRow className="g-3 mb-3">
               {/* Basic Membership */}
               <CCol xs={12} sm={6}>
                 <CCard className="h-100 membership-card">
@@ -309,58 +326,205 @@ const Memberships = () => {
                   </CCardBody>
                 </CCard>
               </CCol>
+            </CRow>
 
-              {/* Tip membership removed */}
+            <CRow className="g-3 mb-3">
+              {/* Coach Special */}
+              <CCol xs={12} sm={6}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">Coach Special</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$75</div>
+                    <p className="text-muted">
+                      Personalized coaching sessions and advanced training.
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      disabled={isCoachSpecialActive}
+                      onClick={() => {
+                        if (isCoachSpecialActive) {
+                          alert('You already have this subscription!')
+                        } else {
+                          handlePurchase('coach_special')
+                        }
+                      }}
+                    >
+                      {isCoachSpecialActive ? 'Already Active' : 'Buy Coach Special'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+
+              {/* Double Membership */}
+              <CCol xs={12} sm={6}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">Double Membership Discount</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$178</div>
+                    <p className="text-muted">
+                      Perfect for couples or two training partners looking to join together.
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      disabled={isDoubleMembershipActive}
+                      onClick={() => {
+                        if (isDoubleMembershipActive) {
+                          alert('You already have this subscription!')
+                        } else {
+                          handlePurchase('double_membership')
+                        }
+                      }}
+                    >
+                      {isDoubleMembershipActive ? 'Already Active' : 'Buy Double Membership'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            </CRow>
+
+            <CRow className="g-3 mb-3">
+              {/* Open Gym Access */}
+              <CCol xs={12} sm={6}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">Open Gym Access</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$104</div>
+                    <p className="text-muted">
+                      Access to the gym facilities on your own schedule.
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      disabled={isOpenGymAccessActive}
+                      onClick={() => {
+                        if (isOpenGymAccessActive) {
+                          alert('You already have this subscription!')
+                        } else {
+                          handlePurchase('open_gym_access')
+                        }
+                      }}
+                    >
+                      {isOpenGymAccessActive ? 'Already Active' : 'Buy Open Gym'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+
+              {/* Two Classes */}
+              <CCol xs={12} sm={6}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">Two Classes A Week</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$140</div>
+                    <p className="text-muted">
+                      Get two specialized classes per week for targeted improvement.
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      disabled={isTwoClassesActive}
+                      onClick={() => {
+                        if (isTwoClassesActive) {
+                          alert('You already have this subscription!')
+                        } else {
+                          handlePurchase('two_classes')
+                        }
+                      }}
+                    >
+                      {isTwoClassesActive ? 'Already Active' : 'Buy Two Classes'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
+            </CRow>
+
+            <CRow className="g-3">
+              {/* One Day Pass (non-subscription) */}
+              <CCol xs={12} sm={6}>
+                <CCard className="h-100 membership-card">
+                  <CCardHeader className="membership-card-header">
+                    <h4 className="mb-0">One Day Pass</h4>
+                  </CCardHeader>
+                  <CCardBody>
+                    <div className="membership-price">$15</div>
+                    <p className="text-muted">
+                      Perfect for guests or occasional visits.
+                    </p>
+                    <CButton
+                      className="membership-action-btn"
+                      // If you want multiple one-day passes, you might remove disabled logic
+                      disabled={isOneDayPassActive}
+                      onClick={() => {
+                        if (isOneDayPassActive) {
+                          alert('You already have this pass active!')
+                        } else {
+                          handlePurchase('one_day_pass')
+                        }
+                      }}
+                    >
+                      {isOneDayPassActive ? 'Already Active' : 'Buy One Day Pass'}
+                    </CButton>
+                  </CCardBody>
+                </CCard>
+              </CCol>
             </CRow>
           </CCardBody>
         </CCard>
 
         {/* CURRENT MEMBERSHIPS SECTION */}
-        <CCard>
-          <CCardHeader className="current-memberships-header">
-            <strong>My Current Memberships</strong>
-          </CCardHeader>
-          <CCardBody>
-            {/* Filter out "tip" memberships */}
-            {Array.isArray(memberships) && memberships.length > 0 ? (
-              <div className="d-flex flex-wrap gap-3">
-                {memberships
-                  .filter((m) => m.type !== 'tip') // <--- EXCLUDES TIP
-                  .map((m) => (
-                    <CCard
-                      key={m.type}
-                      className="p-3 membership-card"
-                      style={{ minWidth: '220px', maxWidth: '300px' }}
-                    >
-                      <CCardHeader className="bg-light border-0">
-                        <h5 className="mb-0 text-capitalize">{m.type} Membership</h5>
-                      </CCardHeader>
-                      <CCardBody>
-                        <p className="text-muted mb-0">
-                          Status:{' '}
-                          <span
-                            style={{
-                              color: m.isActive ? 'green' : 'red',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            {m.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </p>
-                      </CCardBody>
-                    </CCard>
-                  ))}
-              </div>
-            ) : (
-              <p className="text-secondary">No memberships found.</p>
-            )}
-          </CCardBody>
-          <CCardFooter className="bg-light">
-            <small className="text-muted">
-              Here you can view your existing memberships at any time.
-            </small>
-          </CCardFooter>
-        </CCard>
+     {/* CURRENT MEMBERSHIPS SECTION */}
+<CCard>
+  <CCardHeader className="current-memberships-header">
+    <strong>My Current Memberships</strong>
+  </CCardHeader>
+  <CCardBody>
+    {Array.isArray(memberships) && memberships.length > 0 ? (
+      <div className="d-flex flex-wrap gap-3">
+        {memberships
+          .filter((m) => m.type !== 'tip')   // remove tip
+          .filter((m) => m.isActive)         // remove inactive
+          .map((m) => (
+            <CCard
+              key={m.type}
+              className="p-3 membership-card"
+              style={{ minWidth: '220px', maxWidth: '300px' }}
+            >
+              <CCardHeader className="bg-light border-0">
+                <h5 className="mb-0 text-capitalize">{m.type} Membership</h5>
+              </CCardHeader>
+              <CCardBody>
+                <p className="text-muted mb-0">
+                  Status:{' '}
+                  <span
+                    style={{
+                      color: m.isActive ? 'green' : 'red',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {m.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </p>
+              </CCardBody>
+            </CCard>
+          ))}
+      </div>
+    ) : (
+      <p className="text-secondary">No memberships found.</p>
+    )}
+  </CCardBody>
+  <CCardFooter className="bg-light">
+    <small className="text-muted">
+      Here you can view your existing memberships at any time.
+    </small>
+  </CCardFooter>
+</CCard>
+
       </div>
     </>
   )
