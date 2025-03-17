@@ -32,6 +32,7 @@ const Register = () => {
       return
     }
     try {
+      //more comments
       // Create user in Firebase Auth
       await createUserWithEmailAndPassword(auth, email, password)
       alert('Account created successfully!')
