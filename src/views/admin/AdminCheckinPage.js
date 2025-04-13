@@ -100,8 +100,8 @@ function AdminCheckinPage() {
     <CContainer className="py-4">
       {/* Our custom container for styling */}
       <div className="admin-checkins-container">
-        <h1 className="admin-checkins-heading">Recent Check-Ins</h1>
-        {checkIns.length === 0 ? (
+      <h1 className="admin-checkins-heading text-center">Recent Check-Ins</h1>
+      {checkIns.length === 0 ? (
           <p>No check-in logs found.</p>
         ) : (
           <CTable hover responsive>
