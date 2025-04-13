@@ -62,8 +62,8 @@ function QRCodePage() {
 
         try {
           // Fetch from localhost
-     //     const response = await fetch(`http://localhost:8080/api/user-qr-code`, {
-            const response = await fetch(`https://showtime-backend-1.onrender.com/api/user-qr-code`, {
+          //const response = await fetch(`http://localhost:8080/api/user-qr-code`, {
+           const response = await fetch(`https://showtime-backend-1.onrender.com/api/user-qr-code`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${token}`,

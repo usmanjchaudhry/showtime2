@@ -1,0 +1,65 @@
+// src/views/kiosk/KioskCheckinPage.scss
+
+.kiosk-container {
+    min-height: 100vh;
+    background-color: #e8e8e8;
+    padding: 1rem;
+    outline: none; // Remove focus outline
+    cursor: default; // Indicate it's not directly interactive
+}
+
+.kiosk-card {
+    width: 100%;
+    max-width: 650px;
+    min-height: 350px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.4s ease-out, transform 0.2s ease;
+    text-align: center;
+    overflow: hidden;
+
+    .card-body {
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    h1 {
+        font-size: clamp(2.5rem, 6vw, 3.5rem);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+
+    p {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+        margin-bottom: 0.5rem;
+    }
+     .kiosk-name {
+         font-size: clamp(1.5rem, 5vw, 2.2rem);
+         font-weight: 500;
+         margin-bottom: 0.25rem;
+     }
+     .kiosk-status {
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-top: 0.5rem;
+          font-size: clamp(1.3rem, 4.5vw, 1.6rem);
+     }
+     .kiosk-message {
+         font-size: clamp(1rem, 3.5vw, 1.2rem);
+         margin-top: 1rem;
+         color: rgba(255, 255, 255, 0.9);
+     }
+}
+
+// Status Colors
+.status-ready { background-color: #ffffff; color: #333; h1 { color: #4a4a4a; } .kiosk-message { color: #555; } }
+.status-loading { background-color: #f0f0f0; color: #555; h1 { color: #666; } }
+.status-active { background: linear-gradient(135deg, #28a745, #218838); color: #ffffff; transform: scale(1.02); }
+.status-inactive { background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; .kiosk-message { color: #333; } }
+.status-notfound { background: linear-gradient(135deg, #dc3545, #c82333); color: #ffffff; }
+.status-error { background: linear-gradient(135deg, #6c757d, #5a6268); color: #ffffff; }
