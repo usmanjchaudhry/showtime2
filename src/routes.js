@@ -1,3 +1,4 @@
+// src/routes.js
 import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
@@ -7,8 +8,11 @@ const Login = React.lazy(() => import('./views/pages/login/Login.js'))
 const Register = React.lazy(() => import('./views/pages/register/Register.js'))
 const Membership = React.lazy(() => import('./views/membership/Membership.js'))
 const QRCodePage = React.lazy(() => import('./views/pages/qrcode/QRCodePage.js'))
-// NEW: Lazy import the ConsentForm
 const ConsentForm = React.lazy(() => import('./views/consent/ConsentForm.js'))
+const KioskCheckinPage = React.lazy(() => import('./views/kiosk/KioskCheckinPage.js'))
+
+// NEW: AdminCheckinsPage
+const AdminCheckinsPage = React.lazy(() => import('./views/admin/AdminCheckinPage.js'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -20,7 +24,10 @@ const routes = [
   { path: '/memberships', name: 'Membership', element: Membership },
   { path: '/consent', name: 'Consent', element: ConsentForm },
   { path: '/qrcode', name: 'QR Code', element: QRCodePage },
+  { path: '/kiosk', name: 'Kiosk', element: KioskCheckinPage, adminOnly: true },
 
+  // Admin check-ins route
+  { path: '/admin/check-ins', name: 'AdminCheckIns', element: AdminCheckinsPage, adminOnly: true },
 ]
 
 export default routes
