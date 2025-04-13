@@ -1,186 +1,182 @@
-import React, { Suspense, useEffect, useState } from 'react'
-import { HashRouter, Route, Routes, Navigate } from 'react-router-dom'
-import { CSpinner } from '@coreui/react'
-import './scss/style.scss' // Ensure this path is correct
-import { auth } from './firebase' // Ensure this path is correct
-import { onAuthStateChanged } from 'firebase/auth'
+import React, { Suspense, useEffect, useState } from 'react';
+import { HashRouter, Route, Routes, Navigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { CSpinner, CContainer } from '@coreui/react';
+import './scss/style.scss'; // Ensure this path is correct
+import { auth } from './firebase'; // Ensure this path is correct
+import { onAuthStateChanged } from 'firebase/auth';
+// Import Firestore functions
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 // Layout
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'));
 
-// Public Pages
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const Schedule = React.lazy(() => import('./views/schedule/Schedule')) // Assuming Schedule is public
+// Page Imports (Assuming paths are correct)
+const Login = React.lazy(() => import('./views/pages/login/Login'));
+const Register = React.lazy(() => import('./views/pages/register/Register'));
+const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'));
+const Schedule = React.lazy(() => import('./views/schedule/Schedule'));
+const Memberships = React.lazy(() => import('./views/membership/Membership'));
+const ConsentForm = React.lazy(() => import('./views/consent/ConsentForm'));
+const QRCodePage = React.lazy(() => import('./views/pages/qrcode/QRCodePage'));
+const KioskCheckinPage = React.lazy(() => import('./views/kiosk/KioskCheckinPage')); // Import Kiosk Page
+const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
+const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
-// Auth Pages (restricted if logged in)
-const Login = React.lazy(() => import('./views/pages/login/Login'))
-const Register = React.lazy(() => import('./views/pages/register/Register'))
+// --- Route Guard Components ---
 
-// Protected Pages
-const Memberships = React.lazy(() => import('./views/membership/Membership'))
-const ConsentForm = React.lazy(() => import('./views/consent/ConsentForm'))
-// *** NEW: Import the QRCodePage component ***
-const QRCodePage = React.lazy(() => import('./views/pages/qrcode/QRCodePage'))
-// ******************************************
-
-// Error Pages
-const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
-const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
-
-// --- Helper Components for Route Protection ---
-
-// ProtectedRoute: only allows access if user is logged in
-function ProtectedRoute({ user, children }) {
-  // If the user state is still resolving (e.g., initial check hasn't finished),
-  // you might want to show a loading indicator instead of redirecting immediately.
-  // However, the current implementation redirects if `user` is null.
-  if (user === undefined) {
-     // Optional: Show loading spinner while auth state resolves
-     // This prevents redirecting before auth check completes
-     return (
-        <div className="pt-3 text-center">
-          <CSpinner color="primary" variant="grow" />
-        </div>
-     );
+// Protected: Requires login
+function ProtectedRoute({ user, userDataLoading, children }) {
+  const location = useLocation();
+  // Show loading if auth state OR Firestore data is loading
+  if (user === undefined || userDataLoading) {
+    return <div className="pt-3 text-center vh-100 d-flex align-items-center justify-content-center"><CSpinner color="primary" /></div>;
   }
-
   if (!user) {
-    // If not logged in (and auth check finished), redirect to login
-    return <Navigate to="/login" replace /> // Use replace to avoid login in history
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  // If logged in, render the requested component
-  return children
+  return children;
 }
 
-// RestrictedRoute: only allows access if user is logged out
-function RestrictedRoute({ user, children }) {
-   if (user === undefined) {
-      // Optional: Show loading spinner while auth state resolves
-      return (
-         <div className="pt-3 text-center">
-           <CSpinner color="primary" variant="grow" />
-         </div>
-      );
-   }
-
+// Restricted: Requires NO login (e.g., for Login/Register pages)
+function RestrictedRoute({ user, userDataLoading, children }) {
+  if (user === undefined || userDataLoading) {
+    return <div className="pt-3 text-center vh-100 d-flex align-items-center justify-content-center"><CSpinner color="primary" /></div>;
+  }
   if (user) {
-    // If already logged in (and auth check finished), redirect to dashboard
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
-  // If logged out, render the requested component (Login/Register)
-  return children
+  return children;
 }
+
+// Admin: Requires login AND isAdmin === true in Firestore userData
+function AdminRoute({ user, userData, userDataLoading, children }) {
+    const location = useLocation();
+    const isAdmin = !!(userData && userData.isAdmin === true); // Check isAdmin status
+
+    if (user === undefined || userDataLoading) {
+       return <div className="pt-3 text-center vh-100 d-flex align-items-center justify-content-center"><CSpinner color="primary" /></div>;
+    }
+    if (!user) { // Not logged in
+       return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+    if (!isAdmin) { // Logged in but NOT admin
+       console.warn("AdminRoute: Access denied for non-admin user.");
+       return <Navigate to="/dashboard" replace />; // Or redirect to an "Access Denied" page
+    }
+    // If all checks pass (loading done, logged in, isAdmin true)
+    return children;
+ }
 
 // --- Main App Component ---
 const App = () => {
-  // Initialize user state to undefined to represent "loading" or "unresolved"
-  const [user, setUser] = useState(undefined)
+  // State for Firebase Auth user object
+  const [user, setUser] = useState(undefined); // undefined = initial loading state
+  // State for Firestore user data { isAdmin, ... }
+  const [userData, setUserData] = useState(null);
+  // State to track if Firestore data is loading
+  const [userDataLoading, setUserDataLoading] = useState(true);
 
   useEffect(() => {
+    const db = getFirestore(); // Initialize Firestore
+
     // Listen for Firebase Auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // Update state: currentUser will be null if logged out, or user object if logged in
-      setUser(currentUser)
-    })
-    // Cleanup listener on component unmount
-    return () => unsubscribe()
-  }, []) // Empty dependency array ensures this runs only once on mount
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      console.log("App.js: Auth State Changed. Current User:", currentUser?.uid || 'null');
+      setUser(currentUser); // Update auth user state
+
+      if (currentUser) {
+        // If user is logged IN, fetch their Firestore data
+        if (!userData || userData.uid !== currentUser.uid) { // Fetch only if data is missing or user changed
+            setUserDataLoading(true);
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            console.log(`App.js: Attempting to fetch Firestore doc for user ${currentUser.uid}...`);
+            try {
+              const docSnap = await getDoc(userDocRef);
+              if (docSnap.exists()) {
+                const fetchedData = docSnap.data();
+                // *** CONSOLE LOG TO VERIFY FETCHED DATA ***
+                console.log("App.js: Fetched Firestore User Data:", fetchedData);
+                console.log("App.js: isAdmin field value:", fetchedData.isAdmin);
+                // ******************************************
+                setUserData({ uid: currentUser.uid, ...fetchedData }); // Store fetched data
+              } else {
+                console.warn("App.js: No Firestore document found for user:", currentUser.uid);
+                setUserData({ uid: currentUser.uid }); // Store UID only if no doc
+              }
+            } catch (error) {
+              console.error("App.js: Error fetching user Firestore data:", error);
+              setUserData({ uid: currentUser.uid }); // Store UID on error
+            } finally {
+              setUserDataLoading(false); // Finish loading Firestore data
+            }
+        } else {
+             // User is the same, no need to refetch, ensure loading is false
+             if (userDataLoading) setUserDataLoading(false);
+        }
+      } else {
+        // User is logged OUT, clear Firestore data and finish loading
+        setUserData(null);
+        setUserDataLoading(false);
+      }
+    });
+
+    // Cleanup auth listener
+    return () => {
+        console.log("App.js: Cleaning up auth listener.");
+        unsubscribeAuth();
+    }
+  }, []); // Run only once on mount
 
   return (
     <HashRouter>
-      <Suspense
-        fallback={
-          // Global fallback spinner for lazy loaded components
-          <div className="pt-3 text-center" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
-      >
+      <Suspense fallback={ <div className="pt-3 text-center vh-100 d-flex align-items-center justify-content-center"><CSpinner color="primary" /></div> }>
         <Routes>
-          {/* =====================
-               ROUTES INSIDE DEFAULT LAYOUT (Header, Sidebar, etc.)
-               ===================== */}
-          <Route path="/" element={<DefaultLayout />}>
-            {/* Publicly accessible routes within the layout */}
-            {/* index route for '/' -> renders Dashboard */}
+          {/* Login/Register (Outside DefaultLayout, restricted) */}
+          <Route path="/login" element={ <RestrictedRoute user={user} userDataLoading={userDataLoading}><Login /></RestrictedRoute>} />
+          <Route path="/register" element={ <RestrictedRoute user={user} userDataLoading={userDataLoading}><Register /></RestrictedRoute>} />
+
+          {/* KIOSK ROUTE (Outside DefaultLayout, Admin Only) */}
+          <Route
+            path="/kiosk"
+            element={
+                <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
+                    <KioskCheckinPage />
+                </AdminRoute>
+            }
+          />
+
+          {/* Main Application Routes (Inside DefaultLayout) */}
+          {/* Pass state down for use in nested components like Header/Sidebar/Guards */}
+          <Route path="/" element={<DefaultLayout user={user} userData={userData} />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="schedule" element={<Schedule />} />
-            {/* Add other public routes like Trainers if they use DefaultLayout */}
-            {/* <Route path="trainers" element={<Trainers />} /> */}
 
-            {/* PROTECTED ROUTES (require login) */}
+            {/* Protected Routes (for any logged-in user) */}
+            <Route path="memberships" element={ <ProtectedRoute user={user} userDataLoading={userDataLoading}><Memberships /></ProtectedRoute>} />
+            <Route path="consent" element={ <ProtectedRoute user={user} userDataLoading={userDataLoading}><ConsentForm /></ProtectedRoute>} />
+            <Route path="qrcode" element={ <ProtectedRoute user={user} userDataLoading={userDataLoading}><QRCodePage /></ProtectedRoute>} />
+
+            {/* ADMIN Routes (Admin Only) */}
             <Route
-              path="memberships"
+              path="admin/check-ins"
               element={
-                <ProtectedRoute user={user}>
-                  <Memberships />
-                </ProtectedRoute>
+                <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
+                </AdminRoute>
               }
             />
-            <Route
-              path="consent"
-              element={
-                <ProtectedRoute user={user}>
-                  <ConsentForm />
-                </ProtectedRoute>
-              }
-            />
-            {/* *** NEW: Add the QRCodePage route definition *** */}
-            <Route
-              path="qrcode" // Path matches the link in AppHeader
-              element={
-                <ProtectedRoute user={user}> {/* Protect this route */}
-                  <QRCodePage />            {/* Render the component */}
-                </ProtectedRoute>
-              }
-            />
-            {/* ********************************************* */}
+            {/* Add other admin routes here */}
+          </Route>
 
-            {/* Add other protected routes here */}
-
-          </Route> {/* End of DefaultLayout routes */}
-
-
-          {/* =====================
-               ROUTES OUTSIDE DEFAULT LAYOUT
-               ===================== */}
-
-          {/* RESTRICTED ROUTES (Login/Register - only for logged-out users) */}
-          <Route
-            path="/login"
-            element={
-              <RestrictedRoute user={user}>
-                <Login />
-              </RestrictedRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <RestrictedRoute user={user}>
-                <Register />
-              </RestrictedRoute>
-            }
-          />
-
-          {/* ERROR PAGES */}
-          <Route path="/404" element={<Page404 />} />
-          <Route path="/500" element={<Page500 />} />
-
-
-          {/* =====================
-               CATCH-ALL / FALLBACK
-               ===================== */}
-          {/* This will catch any route not matched above */}
-          {/* Redirects to dashboard, or could show Page404 */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          {/* Or redirect to 404: <Route path="*" element={<Navigate to="/404" replace />} /> */}
+           {/* Error pages & Catch all */}
+           <Route path="/404" element={<Page404 />} />
+           <Route path="/500" element={<Page500 />} />
+           <Route path="*" element={<Navigate to="/dashboard" replace />} /> {/* Or to /404 */}
 
         </Routes>
       </Suspense>
     </HashRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;
