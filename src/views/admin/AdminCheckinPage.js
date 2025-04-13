@@ -13,8 +13,6 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
-// Import our custom SCSS for styling
-import './AdminCheckinsPage.scss'
 
 const BACKEND_URL = 'https://showtime-backend-1.onrender.com'
 
