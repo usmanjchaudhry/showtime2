@@ -1,4 +1,5 @@
 // src/views/admin/AdminCheckinsPage.js
+
 import React, { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import {
@@ -12,7 +13,9 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
-// Hardcode the backend URL, or read from an environment variable
+// Import our custom SCSS for styling
+import './AdminCheckinsPage.scss'
+
 const BACKEND_URL = 'https://showtime-backend-1.onrender.com'
 
 function AdminCheckinPage() {
@@ -52,10 +55,7 @@ function AdminCheckinPage() {
         setLoading(true)
         setError(null)
 
-        // Get the ID token from Firebase Auth
         const token = await firebaseUser.getIdToken(false)
-
-        // Call the backend with the full domain
         const resp = await fetch(`${BACKEND_URL}/api/admin/check-ins`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,18 +65,7 @@ function AdminCheckinPage() {
         if (!resp.ok) {
           throw new Error(`Failed to fetch check-ins. Status: ${resp.status}`)
         }
-
         const data = await resp.json()
-        // data is an array of objects like:
-        // {
-        //   id,
-        //   userId,
-        //   userName,
-        //   userEmail,
-        //   statusAtCheckin,
-        //   membershipTypeAtCheckin,
-        //   timestamp (ISO string)
-        // }
         setCheckIns(data)
       } catch (err) {
         console.error('[AdminCheckinsPage] Error fetching logs:', err)
@@ -111,45 +100,49 @@ function AdminCheckinPage() {
   // 4) Render Table of Check-ins
   return (
     <CContainer className="py-4">
-      <h1>Admin Check-Ins</h1>
-      {checkIns.length === 0 ? (
-        <p>No check-in logs found.</p>
-      ) : (
-        <CTable hover responsive>
-          <CTableHead color="dark">
-            <CTableRow>
-              <CTableHeaderCell>User Name</CTableHeaderCell>
-              <CTableHeaderCell>Email</CTableHeaderCell>
-              <CTableHeaderCell>Membership Type</CTableHeaderCell>
-              <CTableHeaderCell>Status</CTableHeaderCell>
-              <CTableHeaderCell>Timestamp</CTableHeaderCell>
-            </CTableRow>
-          </CTableHead>
-          <CTableBody>
-            {checkIns.map((log) => {
-              const dateStr = new Date(log.timestamp).toLocaleString()
+      {/* Our custom container for styling */}
+      <div className="admin-checkins-container">
+        <h1 className="admin-checkins-heading">Recent Check-Ins</h1>
+        {checkIns.length === 0 ? (
+          <p>No check-in logs found.</p>
+        ) : (
+          <CTable hover responsive>
+            <CTableHead color="dark">
+              <CTableRow>
+                <CTableHeaderCell>User Name</CTableHeaderCell>
+                <CTableHeaderCell>Email</CTableHeaderCell>
+                <CTableHeaderCell>Membership Type</CTableHeaderCell>
+                <CTableHeaderCell>Status</CTableHeaderCell>
+                <CTableHeaderCell>Timestamp</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {checkIns.map((log) => {
+                // Convert Firestore timestamp to local string
+                const dateStr = new Date(log.timestamp).toLocaleString()
 
-              // If status isn't "Active", highlight row in red
-              const rowClass =
-                log.statusAtCheckin && log.statusAtCheckin !== 'Active'
-                  ? 'table-danger'
-                  : ''
+                // If status isn't "Active", highlight row in red (table-danger)
+                const rowClass =
+                  log.statusAtCheckin && log.statusAtCheckin !== 'Active'
+                    ? 'table-danger'
+                    : ''
 
-              return (
-                <CTableRow key={log.id} className={rowClass}>
-                  <CTableDataCell>{log.userName || '—'}</CTableDataCell>
-                  <CTableDataCell>{log.userEmail || '—'}</CTableDataCell>
-                  <CTableDataCell>
-                    {log.membershipTypeAtCheckin || '—'}
-                  </CTableDataCell>
-                  <CTableDataCell>{log.statusAtCheckin || '—'}</CTableDataCell>
-                  <CTableDataCell>{dateStr}</CTableDataCell>
-                </CTableRow>
-              )
-            })}
-          </CTableBody>
-        </CTable>
-      )}
+                return (
+                  <CTableRow key={log.id} className={rowClass}>
+                    <CTableDataCell>{log.userName || '—'}</CTableDataCell>
+                    <CTableDataCell>{log.userEmail || '—'}</CTableDataCell>
+                    <CTableDataCell>
+                      {log.membershipTypeAtCheckin || '—'}
+                    </CTableDataCell>
+                    <CTableDataCell>{log.statusAtCheckin || '—'}</CTableDataCell>
+                    <CTableDataCell>{dateStr}</CTableDataCell>
+                  </CTableRow>
+                )
+              })}
+            </CTableBody>
+          </CTable>
+        )}
+      </div>
     </CContainer>
   )
 }
