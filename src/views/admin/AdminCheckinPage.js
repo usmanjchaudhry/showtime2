@@ -1,5 +1,4 @@
 // src/views/admin/AdminCheckinsPage.js
-
 import React, { useEffect, useState } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import {
@@ -13,17 +12,18 @@ import {
   CTableDataCell,
 } from '@coreui/react'
 
+// Hardcode the backend URL, or read from an environment variable
+const BACKEND_URL = 'https://showtime-backend-1.onrender.com'
+
 function AdminCheckinPage() {
   const [checkIns, setCheckIns] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
-  // We'll store the Firebase user object here once we know it's loaded
   const [firebaseUser, setFirebaseUser] = useState(undefined)
 
+  // 1) Listen for Auth State
   useEffect(() => {
-    // Listen for Firebase Auth state changes so we know if there's a user
-    const unsub = onAuthStateChanged(getAuth(), (user) => {
+    const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
       if (user) {
         console.log('[AdminCheckinsPage] Auth user loaded:', user.uid)
         setFirebaseUser(user)
@@ -32,14 +32,13 @@ function AdminCheckinPage() {
         setFirebaseUser(null)
       }
     })
-    return () => unsub()
+    return () => unsubscribe()
   }, [])
 
+  // 2) Fetch Admin Check-ins (Once we know the auth user)
   useEffect(() => {
-    // If we haven't determined the auth state, do nothing yet
-    if (firebaseUser === undefined) {
-      return
-    }
+    // If we're still determining auth state, do nothing
+    if (firebaseUser === undefined) return
 
     // If no user is logged in, show error
     if (!firebaseUser) {
@@ -48,18 +47,18 @@ function AdminCheckinPage() {
       return
     }
 
-    // Otherwise, we have a valid user, let's fetch the check-ins
     const fetchCheckIns = async () => {
       try {
         setLoading(true)
         setError(null)
 
-        // Get the ID token
+        // Get the ID token from Firebase Auth
         const token = await firebaseUser.getIdToken(false)
 
-        const resp = await fetch('/api/admin/check-ins', {
+        // Call the backend with the full domain
+        const resp = await fetch(`${BACKEND_URL}/api/admin/check-ins`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         })
 
@@ -68,15 +67,15 @@ function AdminCheckinPage() {
         }
 
         const data = await resp.json()
-        // 'data' should be an array of docs:
-        // e.g. {
-        //   id: "...",
-        //   userName: "Usman Chaudhry",
-        //   userEmail: "usmanjc98@gmail.com",
-        //   statusAtCheckin: "Inactive",
-        //   membershipTypeAtCheckin: "basic",
-        //   timestamp: "2025-04-13T08:42:05Z"
-        //JUst sshit so it will go in prod
+        // data is an array of objects like:
+        // {
+        //   id,
+        //   userId,
+        //   userName,
+        //   userEmail,
+        //   statusAtCheckin,
+        //   membershipTypeAtCheckin,
+        //   timestamp (ISO string)
         // }
         setCheckIns(data)
       } catch (err) {
@@ -90,6 +89,7 @@ function AdminCheckinPage() {
     fetchCheckIns()
   }, [firebaseUser])
 
+  // 3) Render Loading/Error/Success UI
   if (loading) {
     return (
       <CContainer className="py-5 text-center">
@@ -108,6 +108,7 @@ function AdminCheckinPage() {
     )
   }
 
+  // 4) Render Table of Check-ins
   return (
     <CContainer className="py-4">
       <h1>Admin Check-Ins</h1>
@@ -126,15 +127,14 @@ function AdminCheckinPage() {
           </CTableHead>
           <CTableBody>
             {checkIns.map((log) => {
-              // Convert Firestore timestamp to local string
               const dateStr = new Date(log.timestamp).toLocaleString()
 
-              // If status != "Active", highlight the row in red (table-danger)
+              // If status isn't "Active", highlight row in red
               const rowClass =
                 log.statusAtCheckin && log.statusAtCheckin !== 'Active'
                   ? 'table-danger'
                   : ''
-                console.log(log)
+
               return (
                 <CTableRow key={log.id} className={rowClass}>
                   <CTableDataCell>{log.userName || '—'}</CTableDataCell>
