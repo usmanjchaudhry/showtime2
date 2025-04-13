@@ -28,7 +28,7 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 // NEW: Admin Check-ins Page
 const AdminCheckinsPage = React.lazy(() => import('./views/admin/AdminCheckinPage'))
 
-// ---- Route Guard Components ----
+// ---- Route Guards ----
 
 // 1) ProtectedRoute: requires login
 function ProtectedRoute({ user, userDataLoading, children }) {
@@ -162,23 +162,17 @@ const App = () => {
             }
           />
 
-          {/* Admin-only Kiosk page (outside DefaultLayout) */}
-          <Route
-            path="/kiosk"
-            element={
-              <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
-                <KioskCheckinPage />
-              </AdminRoute>
-            }
-          />
+          {/* 
+            NOTE: We removed the kiosk route from "outside" the DefaultLayout.
+            We'll place it inside the DefaultLayout so it shows header & footer.
+          */}
 
           {/* Main app routes (inside DefaultLayout) */}
           <Route
             path="/"
-            element={
-              <DefaultLayout user={user} userData={userData} />
-            }
+            element={<DefaultLayout user={user} userData={userData} />}
           >
+            {/* If someone visits "/", redirect to /dashboard */}
             <Route index element={<Navigate to="/dashboard" replace />} />
 
             <Route path="dashboard" element={<Dashboard />} />
@@ -210,7 +204,17 @@ const App = () => {
               }
             />
 
-            {/* New Admin-only route for Check-Ins inside default layout */}
+            {/* Admin-only kiosk page, now inside the DefaultLayout */}
+            <Route
+              path="kiosk"
+              element={
+                <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
+                  <KioskCheckinPage />
+                </AdminRoute>
+              }
+            />
+
+            {/* Admin-only route for Check-Ins, also inside DefaultLayout */}
             <Route
               path="admin/check-ins"
               element={

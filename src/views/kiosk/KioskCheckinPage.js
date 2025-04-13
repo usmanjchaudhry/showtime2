@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { CContainer, CCard, CCardBody, CSpinner } from '@coreui/react'
-import './KioskCheckinPage.scss' // Custom kiosk styles
+import './KioskCheckinPage.scss'
+
+// Replace with your actual backend domain or environment variable:
+const BACKEND_URL = 'https://showtime-backend-1.onrender.com'
 
 /**
  * Looks for "/checkin/ABC123" in the scanned text.
+ * Example: "https://example.com/checkin/ABC123" -> "/checkin/ABC123".
  */
 function extractCheckinPath(text) {
   try {
@@ -17,11 +21,12 @@ function extractCheckinPath(text) {
 }
 
 /**
- * Given "/checkin/ABC123", returns "ABC123"
+ * Given "/checkin/ABC123", returns "ABC123".
  */
 function extractUserId(checkinPath) {
   if (!checkinPath) return null
   const parts = checkinPath.split('/')
+  // Expect: ["", "checkin", "USERID"]
   return parts.length === 3 ? parts[2] : null
 }
 
@@ -30,18 +35,22 @@ function KioskCheckinPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Refs for scanner input buffering & status timers
   const inputBuffer = useRef('')
   const inputTimeoutRef = useRef(null)
   const statusClearTimerRef = useRef(null)
+
+  // Ref to focus the container (for key events)
   const containerRef = useRef(null)
 
-  // -- Process the scanned URL path and fetch check-in status
+  // 1) Process the scanned URL path
   const processScan = useCallback(async (scannedUrlPath) => {
     console.log('Kiosk: Processing scan for path:', scannedUrlPath)
     setIsLoading(true)
     setError(null)
     setLastStatus(null)
 
+    // Extract user ID from "/checkin/USERID"
     const userId = extractUserId(scannedUrlPath)
     if (!userId) {
       console.error('Kiosk: Could not extract UserID from path:', scannedUrlPath)
@@ -54,24 +63,28 @@ function KioskCheckinPage() {
     }
 
     try {
-      // hitting /api/check-in-status/{userId} on your Go backend
-      const response = await fetch(`/api/check-in-status/${userId}`)
+      // Call your backend: https://showtime-backend-1.onrender.com/api/check-in-status/...
+      const response = await fetch(`${BACKEND_URL}/api/check-in-status/${userId}`)
       const responseData = await response.json()
 
       if (!response.ok) {
+        // If server responded with non-200, parse message
         throw new Error(
           responseData.message || `Scan Error: ${response.status} ${response.statusText}`
         )
       }
+
       if (responseData.status === 'Error') {
         throw new Error(responseData.message || 'Backend error.')
       }
 
-      // success
+      // Success! Store status with a local timestamp
       setLastStatus({ ...responseData, timestamp: Date.now() })
 
+      // Clear the status after 4 seconds
       clearTimeout(statusClearTimerRef.current)
       statusClearTimerRef.current = setTimeout(() => setLastStatus(null), 4000)
+
     } catch (err) {
       console.error('Kiosk: Error during API call:', err)
       setError(err.message || 'Failed to process check-in.')
@@ -83,13 +96,14 @@ function KioskCheckinPage() {
     }
   }, [])
 
-  // -- Listen for keystrokes from the scanner
+  // 2) Listen for scanner keystrokes
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key.length > 1 && event.key !== 'Enter' && event.key !== 'Backspace') {
         return
       }
 
+      // If Enter, process the accumulated text
       if (event.key === 'Enter') {
         const scannedText = inputBuffer.current.trim()
         console.log('Kiosk: Enter detected, buffer:', scannedText)
@@ -108,11 +122,14 @@ function KioskCheckinPage() {
         inputBuffer.current = ''
         event.preventDefault()
       } else if (event.key === 'Backspace') {
+        // Manually handle backspace
         inputBuffer.current = inputBuffer.current.slice(0, -1)
       } else {
+        // Append typed character
         inputBuffer.current += event.key
       }
 
+      // Reset buffer if no Enter within 750ms
       clearTimeout(inputTimeoutRef.current)
       inputTimeoutRef.current = setTimeout(() => {
         if (inputBuffer.current) {
@@ -122,9 +139,11 @@ function KioskCheckinPage() {
       }, 750)
     }
 
+    // Focus the container so we capture key events
     if (containerRef.current) {
       containerRef.current.focus()
     }
+
     window.addEventListener('keydown', handleKeyDown)
     console.log('Kiosk: Event listener added.')
 
@@ -136,7 +155,7 @@ function KioskCheckinPage() {
     }
   }, [processScan])
 
-  // -- Decide how to display UI
+  // 3) Decide how to display UI
   let cardClass = 'kiosk-card status-ready'
   let content = <h1>Ready to Scan</h1>
 
@@ -163,37 +182,57 @@ function KioskCheckinPage() {
         content = (
           <>
             <h1>Welcome!</h1>
-            {lastStatus.userName && <p className="kiosk-name">{lastStatus.userName}</p>}
-            {lastStatus.userEmail && <p className="kiosk-email">{lastStatus.userEmail}</p>}
+            {lastStatus.userName && (
+              <p className="kiosk-name">{lastStatus.userName}</p>
+            )}
+            {lastStatus.userEmail && (
+              <p className="kiosk-email">{lastStatus.userEmail}</p>
+            )}
             <p className="kiosk-status">ACTIVE</p>
           </>
         )
         break
+
       case 'Inactive':
         cardClass = 'kiosk-card status-inactive'
         content = (
           <>
             <h1>Status</h1>
-            {lastStatus.userName && <p className="kiosk-name">{lastStatus.userName}</p>}
-            {lastStatus.userEmail && <p className="kiosk-email">{lastStatus.userEmail}</p>}
+            {lastStatus.userName && (
+              <p className="kiosk-name">{lastStatus.userName}</p>
+            )}
+            {lastStatus.userEmail && (
+              <p className="kiosk-email">{lastStatus.userEmail}</p>
+            )}
             <p className="kiosk-status">INACTIVE / EXPIRED</p>
-            {lastStatus.message && <p className="kiosk-message">{lastStatus.message}</p>}
+            {lastStatus.message && (
+              <p className="kiosk-message">{lastStatus.message}</p>
+            )}
           </>
         )
         break
+
       case 'NotFound':
         cardClass = 'kiosk-card status-notfound'
         content = (
           <>
             <h1>Status</h1>
-            {lastStatus.userName && <p className="kiosk-name">{lastStatus.userName}</p>}
-            {lastStatus.userEmail && <p className="kiosk-email">{lastStatus.userEmail}</p>}
+            {lastStatus.userName && (
+              <p className="kiosk-name">{lastStatus.userName}</p>
+            )}
+            {lastStatus.userEmail && (
+              <p className="kiosk-email">{lastStatus.userEmail}</p>
+            )}
             <p className="kiosk-status">NOT FOUND</p>
-            {lastStatus.message && <p className="kiosk-message">{lastStatus.message}</p>}
+            {lastStatus.message && (
+              <p className="kiosk-message">{lastStatus.message}</p>
+            )}
           </>
         )
         break
-      default: // "Error" or unknown
+
+      default:
+        // "Error" or unknown
         cardClass = 'kiosk-card status-error'
         content = (
           <>
@@ -206,6 +245,7 @@ function KioskCheckinPage() {
     }
   }
 
+  // 4) Render kiosk UI
   return (
     <CContainer
       fluid
