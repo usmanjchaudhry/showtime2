@@ -356,6 +356,19 @@ const Dashboard = () => {
           Must be 8-20 characters long.
         </CFormText>
       </CForm>*/}
+ <div className="section-title-container contact-info">
+        <h2 className="section-title">Location & Contact</h2>
+        <p>
+          <strong>Address:</strong> 6817 Balboa Blvd B, Lake Balboa, CA 91406
+        </p>
+        <p>
+          <strong>Phone:</strong> <a href="tel:+18186164486">(818) 616-4486</a>
+        </p>
+    {/* --- Instagram Link Added Below --- */}
+    <p>
+          <strong>Instagram:</strong> <a href="https://www.instagram.com/showtimeboxingla/?hl=en" target="_blank" rel="noopener noreferrer">@showtimeboxingla</a>
+        </p>
+      </div>
     </>
   )
 }

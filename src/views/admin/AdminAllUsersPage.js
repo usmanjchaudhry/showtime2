@@ -1,7 +1,14 @@
-// src/views/admin/AdminAllUsersPage.js
 import React, { useEffect, useState } from 'react'
-import { auth } from '../../firebase' // Adjust path to your firebase.js if needed
-import { CSpinner, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell } from '@coreui/react'
+import { auth } from '../../firebase' // Adjust path if needed
+import {
+  CSpinner,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
+} from '@coreui/react'
 
 function AdminAllUsersPage() {
   const [users, setUsers] = useState([])
@@ -10,30 +17,38 @@ function AdminAllUsersPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      console.log('[AdminAllUsersPage] Starting to fetch users...')
       setLoading(true)
       setError('')
+
       try {
-        // 1) Get the Firebase auth token
+        // 1) Get the Firebase Auth ID token (must be admin)
         const token = await auth.currentUser.getIdToken()
+        console.log('[AdminAllUsersPage] Fetched ID token:', token)
+
         // 2) Call your backend endpoint
+        console.log('[AdminAllUsersPage] Sending request to /api/admin/all-users...')
         const res = await fetch('http://localhost:8080/api/admin/all-users', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
+        console.log('[AdminAllUsersPage] Response status:', res.status)
+
         if (!res.ok) {
-          // If the response isn't OK, throw an error to be caught below
-          const msg = `Failed to fetch all users. Status: ${res.status}`
-          throw new Error(msg)
+          throw new Error(`Failed to fetch all users. Status: ${res.status}`)
         }
+
         // 3) Parse JSON
         const data = await res.json()
+        console.log('[AdminAllUsersPage] Received data:', data)
         setUsers(data)
       } catch (err) {
-        console.error('Error fetching all users:', err)
+        console.error('[AdminAllUsersPage] Error fetching all users:', err)
         setError(err.message || 'Failed to fetch users')
       } finally {
         setLoading(false)
+        console.log('[AdminAllUsersPage] Finished fetchUsers.')
       }
     }
 
@@ -66,18 +81,18 @@ function AdminAllUsersPage() {
         <CTable hover responsive>
           <CTableHead>
             <CTableRow>
-              <CTableHeaderCell>UID</CTableHeaderCell>
-              <CTableHeaderCell>Name</CTableHeaderCell>
+              <CTableHeaderCell>First Name</CTableHeaderCell>
+              <CTableHeaderCell>Last Name</CTableHeaderCell>
               <CTableHeaderCell>Email</CTableHeaderCell>
               <CTableHeaderCell>Phone</CTableHeaderCell>
-              <CTableHeaderCell>Is Admin?</CTableHeaderCell>
+              <CTableHeaderCell>Admin?</CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
-            {users.map((u) => (
-              <CTableRow key={u.uid}>
-                <CTableDataCell>{u.uid}</CTableDataCell>
-                <CTableDataCell>{u.name || ''}</CTableDataCell>
+            {users.map((u, idx) => (
+              <CTableRow key={idx}>
+                <CTableDataCell>{u.firstName || ''}</CTableDataCell>
+                <CTableDataCell>{u.lastName || ''}</CTableDataCell>
                 <CTableDataCell>{u.email || ''}</CTableDataCell>
                 <CTableDataCell>{u.phone || ''}</CTableDataCell>
                 <CTableDataCell>{u.isAdmin ? 'Yes' : 'No'}</CTableDataCell>
