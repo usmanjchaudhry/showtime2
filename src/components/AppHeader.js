@@ -1,4 +1,3 @@
-// src/components/AppHeader.js
 import React, { useState, useEffect } from 'react'
 import {
   CContainer,
@@ -15,14 +14,12 @@ import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import ShowtimeLogo from '../assets/images/SHOWTIME_LOGO_BLACK-removebg-preview.png'
 import { useNavigate } from 'react-router-dom'
-
-// Import Firestore so we can fetch isAdmin
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 
 const AppHeader = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [user, setUser] = useState(null)
-  const [isAdmin, setIsAdmin] = useState(false)  // Track if user is admin
+  const [isAdmin, setIsAdmin] = useState(false) // track if user is admin
 
   const navigate = useNavigate()
 
@@ -39,19 +36,17 @@ const AppHeader = () => {
     const db = getFirestore()
 
     if (!user) {
-      // If no user, definitely not admin
       setIsAdmin(false)
       return
     }
 
-    // If user is logged in, fetch the user doc
     const checkIsAdmin = async () => {
       try {
         const userDocRef = doc(db, 'users', user.uid)
         const docSnap = await getDoc(userDocRef)
         if (docSnap.exists()) {
           const data = docSnap.data()
-          // If docSnap has isAdmin === true, set isAdmin
+          // If isAdmin === true, set the state
           setIsAdmin(!!data.isAdmin)
         } else {
           console.warn('No Firestore document found for user:', user.uid)
@@ -66,7 +61,6 @@ const AppHeader = () => {
     checkIsAdmin()
   }, [user])
 
-  // Function to handle logout
   const handleLogout = async () => {
     try {
       await signOut(auth)
@@ -77,7 +71,6 @@ const AppHeader = () => {
     }
   }
 
-  // Function to handle navigation
   const handleNavClick = (path) => {
     navigate(path)
     setIsExpanded(false)
@@ -110,7 +103,7 @@ const AppHeader = () => {
 
       <CNavbar expand="lg" className="bg-white shadow" placement="sticky-top">
         <CContainer fluid>
-          {/* Logo + Brand (clickable) */}
+          {/* Logo + Brand */}
           <div onClick={() => handleNavClick('/dashboard')} style={{ cursor: 'pointer' }}>
             <img src={ShowtimeLogo} alt="Showtime Logo" width={80} height={80} />
           </div>
@@ -122,13 +115,6 @@ const AppHeader = () => {
             Showtime Boxing
           </CNavbarBrand>
 
-          <CNavbarBrand
-            onClick={() => handleNavClick('/dashboard')}
-            className="text-black fw-bold ps-2 d-block d-lg-none"
-            style={{ cursor: 'pointer' }}
-          />
-
-          {/* Toggler for mobile */}
           <CNavbarToggler
             className="border"
             aria-label="Toggle navigation"
@@ -138,7 +124,6 @@ const AppHeader = () => {
 
           <CCollapse className="navbar-collapse" visible={isExpanded}>
             <CNavbarNav className="ms-auto mb-2 mb-lg-0 align-items-lg-center">
-              {/* Commonly visible nav links */}
               <CNavItem>
                 <CNavLink
                   onClick={() => handleNavClick('/dashboard')}
@@ -164,10 +149,9 @@ const AppHeader = () => {
                 </CNavLink>
               </CNavItem>
 
-              {/* Conditional: if user is logged in */}
+              {/* If user is logged in */}
               {user ? (
                 <>
-                  {/* My QR Code link */}
                   <CNavItem>
                     <CNavLink
                       onClick={() => handleNavClick('/qrcode')}
@@ -177,7 +161,7 @@ const AppHeader = () => {
                     </CNavLink>
                   </CNavItem>
 
-                  {/* Admin-only links (Kiosk & AdminCheckinsPage) */}
+                  {/* Admin-only links */}
                   {isAdmin && (
                     <>
                       <CNavItem>
@@ -188,14 +172,24 @@ const AppHeader = () => {
                           Kiosk
                         </CNavLink>
                       </CNavItem>
-
-                      {/* NEW: Admin Check-Ins link */}
                       <CNavItem>
                         <CNavLink
                           onClick={() => handleNavClick('/admin/check-ins')}
                           className="nav-link-hover-underline text-black"
                         >
                           Admin Check-Ins
+                        </CNavLink>
+                      </CNavItem>
+
+                      {/*
+                        NEW Admin-only: "All Users" (View user directory, etc.)
+                      */}
+                      <CNavItem>
+                        <CNavLink
+                          onClick={() => handleNavClick('/admin/all-users')}
+                          className="nav-link-hover-underline text-black"
+                        >
+                          All Users
                         </CNavLink>
                       </CNavItem>
                     </>
@@ -214,19 +208,17 @@ const AppHeader = () => {
                   </CNavItem>
                 </>
               ) : (
-                // If user is not logged in
-                <>
-                  <CNavItem className="ms-lg-2">
-                    <CButton
-                      color="primary"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleNavClick('/login')}
-                    >
-                      Login
-                    </CButton>
-                  </CNavItem>
-                </>
+                // If user not logged in
+                <CNavItem className="ms-lg-2">
+                  <CButton
+                    color="primary"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleNavClick('/login')}
+                  >
+                    Login
+                  </CButton>
+                </CNavItem>
               )}
             </CNavbarNav>
           </CCollapse>

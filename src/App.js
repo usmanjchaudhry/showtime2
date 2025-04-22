@@ -25,8 +25,9 @@ const KioskCheckinPage = React.lazy(() => import('./views/kiosk/KioskCheckinPage
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 
-// NEW: Admin Check-ins Page
+// Admin pages
 const AdminCheckinsPage = React.lazy(() => import('./views/admin/AdminCheckinPage'))
+const AdminAllUsersPage = React.lazy(() => import('./views/admin/AdminAllUsersPage')) // <-- NEW
 
 // ---- Route Guards ----
 
@@ -172,7 +173,7 @@ const App = () => {
             path="/"
             element={<DefaultLayout user={user} userData={userData} />}
           >
-            {/* If someone visits "/", redirect to /dashboard */}
+            {/* If someone visits "/", redirect to "/dashboard" */}
             <Route index element={<Navigate to="/dashboard" replace />} />
 
             <Route path="dashboard" element={<Dashboard />} />
@@ -204,7 +205,7 @@ const App = () => {
               }
             />
 
-            {/* Admin-only kiosk page, now inside the DefaultLayout */}
+            {/* Admin-only kiosk page */}
             <Route
               path="kiosk"
               element={
@@ -214,12 +215,25 @@ const App = () => {
               }
             />
 
-            {/* Admin-only route for Check-Ins, also inside DefaultLayout */}
+            {/* Admin-only route for Check-Ins */}
             <Route
               path="admin/check-ins"
               element={
                 <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
                   <AdminCheckinsPage />
+                </AdminRoute>
+              }
+            />
+
+            {/*
+              NEW: Admin-only route for "All Users" listing.
+              You must have created AdminAllUsersPage as well.
+            */}
+            <Route
+              path="admin/all-users"
+              element={
+                <AdminRoute user={user} userData={userData} userDataLoading={userDataLoading}>
+                  <AdminAllUsersPage />
                 </AdminRoute>
               }
             />
@@ -229,7 +243,7 @@ const App = () => {
           <Route path="/404" element={<Page404 />} />
           <Route path="/500" element={<Page500 />} />
 
-          {/* Catch-all: redirect to /dashboard or /404 */}
+          {/* Catch-all: redirect to "/dashboard" */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Suspense>
