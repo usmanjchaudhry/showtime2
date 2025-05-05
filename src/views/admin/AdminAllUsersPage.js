@@ -1,67 +1,74 @@
-import React, { useEffect, useState } from 'react'
-import { auth } from '../../firebase' // Adjust path if needed
+import React, { useEffect, useState } from 'react';
+import { auth } from '../../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import {
   CSpinner,
-  CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableBody,
-  CTableDataCell,
-} from '@coreui/react'
+  CTable, CTableHead, CTableRow,
+  CTableHeaderCell, CTableBody, CTableDataCell,
+} from '@coreui/react';
 
 function AdminAllUsersPage() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [rows,    setRows]    = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState('');
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      console.log('[AdminAllUsersPage] Starting to fetch users...')
-      setLoading(true)
-      setError('')
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setError('You must be signed-in as an admin.');
+        setLoading(false);
+        return;
+      }
 
       try {
-        // 1) Get the Firebase Auth ID token (must be admin)
-        const token = await auth.currentUser.getIdToken()
-        console.log('[AdminAllUsersPage] Fetched ID token:', token)
+        setLoading(true);
+        setError('');
 
-        // 2) Call your backend endpoint
-        console.log('[AdminAllUsersPage] Sending request to /api/admin/all-users...')
-        const res = await fetch('http://localhost:8080/api/admin/all-users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        console.log('[AdminAllUsersPage] Response status:', res.status)
+        const token = await user.getIdToken(true);
+        const res   = await fetch('http://localhost:8080/api/admin/raw-users', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
 
-        if (!res.ok) {
-          throw new Error(`Failed to fetch all users. Status: ${res.status}`)
-        }
+        const dump = await res.json();           // array of user objects
+        console.log('FULL /users DUMP:', dump);  // keep for debugging
 
-        // 3) Parse JSON
-        const data = await res.json()
-        console.log('[AdminAllUsersPage] Received data:', data)
-        setUsers(data)
-      } catch (err) {
-        console.error('[AdminAllUsersPage] Error fetching all users:', err)
-        setError(err.message || 'Failed to fetch users')
+        /* -------- flatten Firestore structure into simple rows -------- */
+        const flat = dump.map(u => {
+          const waiver      = u.subcollections?.consent?.waiver || {};
+          const memberships = u.subcollections?.memberships    || {};
+
+          // find a membership with isActive === true, otherwise "none"
+          const activeEntry = Object.values(memberships).find(m => m.isActive);
+
+          return {
+            uid:        u.uid,
+            name:       waiver.name  || '(unknown)',
+            email:      waiver.email || '(unknown)',
+            phone:      waiver.phone || '(unknown)',
+            membership: activeEntry ? activeEntry.type : 'none',
+          };
+        });
+
+        setRows(flat);
+      } catch (e) {
+        setError(e.message || 'Failed to fetch users');
       } finally {
-        setLoading(false)
-        console.log('[AdminAllUsersPage] Finished fetchUsers.')
+        setLoading(false);
       }
-    }
+    });
 
-    fetchUsers()
-  }, [])
+    return () => unsub();
+  }, []);
 
+  /* --------------------------- UI states --------------------------- */
   if (loading) {
     return (
       <div className="text-center py-5">
         <CSpinner color="primary" />
-        <p>Loading users...</p>
+        <p>Loading users…</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -69,40 +76,40 @@ function AdminAllUsersPage() {
       <div className="text-center py-5">
         <h4 style={{ color: 'red' }}>Error: {error}</h4>
       </div>
-    )
+    );
   }
 
+  /* ------------------------------ table ------------------------------ */
   return (
     <div style={{ padding: '1rem' }}>
-      <h2>All Users (Admin Only)</h2>
-      {users.length === 0 ? (
+      <h2>All Users ({rows.length})</h2>
+
+      {rows.length === 0 ? (
         <p>No users found.</p>
       ) : (
         <CTable hover responsive>
           <CTableHead>
             <CTableRow>
-              <CTableHeaderCell>First Name</CTableHeaderCell>
-              <CTableHeaderCell>Last Name</CTableHeaderCell>
+              <CTableHeaderCell>Name</CTableHeaderCell>
               <CTableHeaderCell>Email</CTableHeaderCell>
               <CTableHeaderCell>Phone</CTableHeaderCell>
-              <CTableHeaderCell>Admin?</CTableHeaderCell>
+              <CTableHeaderCell>Active Membership</CTableHeaderCell>
             </CTableRow>
           </CTableHead>
           <CTableBody>
-            {users.map((u, idx) => (
-              <CTableRow key={idx}>
-                <CTableDataCell>{u.firstName || ''}</CTableDataCell>
-                <CTableDataCell>{u.lastName || ''}</CTableDataCell>
-                <CTableDataCell>{u.email || ''}</CTableDataCell>
-                <CTableDataCell>{u.phone || ''}</CTableDataCell>
-                <CTableDataCell>{u.isAdmin ? 'Yes' : 'No'}</CTableDataCell>
+            {rows.map(r => (
+              <CTableRow key={r.uid}>
+                <CTableDataCell>{r.name}</CTableDataCell>
+                <CTableDataCell>{r.email}</CTableDataCell>
+                <CTableDataCell>{r.phone}</CTableDataCell>
+                <CTableDataCell>{r.membership}</CTableDataCell>
               </CTableRow>
             ))}
           </CTableBody>
         </CTable>
       )}
     </div>
-  )
+  );
 }
 
-export default AdminAllUsersPage
+export default AdminAllUsersPage;
