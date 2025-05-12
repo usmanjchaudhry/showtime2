@@ -15,8 +15,13 @@ const RIGHT_MARGIN = 40
 const LINE_SPACING = 15 // vertical spacing between lines
 
 const ConsentForm = () => {
-  // Basic Personal Info
-  const [name, setName] = useState('')
+
+
+  // Participant (basic)
+  const [firstName, setFirst] = useState('')
+  const [middleName, setMiddle] = useState('')
+  const [lastName, setLast] = useState('')
+  const [address, setAddress] = useState('')
   const [email, setEmail] = useState('')
   const [dob, setDob] = useState('')
   const [phone, setPhone] = useState('')
@@ -30,6 +35,12 @@ const ConsentForm = () => {
   const [medicalIssuesDescription, setMedicalIssuesDescription] = useState('')
   const [liabilityAgreed, setLiabilityAgreed] = useState(false)
   const [rulesAgreed, setRulesAgreed] = useState(false)
+
+  /* ---------- guardian / minors ---------- */
+  const [guardianName, setGuardianName] = useState('')
+  const [guardianRel, setGuardianRel] = useState('')
+  const [guardianPhone, setGuardianPhone] = useState('')
+  const [guardianEmail, setGuardianEmail] = useState('')
 
   // UI states
   const [error, setError] = useState('')
@@ -65,7 +76,10 @@ const ConsentForm = () => {
     }
     return currentY
   }
-
+  const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim()
+  const calcAge = d =>
+    d ? Math.floor((Date.now() - new Date(d)) / 3.15576e10) : 0
+    const isMinor = dob && calcAge(dob) <= 18
   // ---------------------
   // Handle Submit
   // ---------------------
@@ -73,6 +87,14 @@ const ConsentForm = () => {
     e.preventDefault()
     setError('')
     setIsSubmitting(true)
+
+    /* ---- require guardian block for minors ---- */
+    if (isMinor && !(guardianName && guardianRel && guardianPhone && guardianEmail)) {
+      setError('Parent / guardian information is required for minors.')
+      setIsSubmitting(false)
+      return
+    }
+
 
     try {
       const currentUser = auth.currentUser
@@ -99,9 +121,16 @@ const ConsentForm = () => {
       doc.setFontSize(12)
 
       // Basic Info
+        yPos = wrapAndPrint(
+            doc,
+            `Name: ${fullName}`,                    // ✅ single call, correct text
+            LEFT_MARGIN,
+            yPos,
+            PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+          )
       yPos = wrapAndPrint(
         doc,
-        `Name: ${name}`,
+        `Address: ${address}`,
         LEFT_MARGIN,
         yPos,
         PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
@@ -127,7 +156,31 @@ const ConsentForm = () => {
         yPos,
         PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
       )
-
+      /* ---------- guardian details in PDF (for minors) ---------- */
+      if (isMinor) {
+        yPos += 10
+        yPos = wrapAndPrint(
+          doc,
+          `Guardian: ${guardianName} (${guardianRel})`,
+          LEFT_MARGIN,
+          yPos,
+          PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+        )
+        yPos = wrapAndPrint(
+          doc,
+          `Guardian Phone: ${guardianPhone}`,
+          LEFT_MARGIN,
+          yPos,
+          PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+        )
+        yPos = wrapAndPrint(
+          doc,
+          `Guardian Email: ${guardianEmail}`,
+          LEFT_MARGIN,
+          yPos,
+          PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+        )
+      }
       // Emergency Contact
       yPos += 10
       yPos = checkPageOverflow(doc, yPos)
@@ -235,14 +288,19 @@ const ConsentForm = () => {
 
       // 4) Send data to backend please
       const token = await currentUser.getIdToken()
-      const res = await fetch('https://showtime-backend-1.onrender.com/api/submit-consent', {
+      const res = await fetch('http://localhost:8080/api/submit-consent', {
+        //const res = await fetch('https://showtime-backend-1.onrender.com/api/submit-consent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name,
+         name: fullName,               // ← matches Go handler (`Name`)
+          firstName,
+          middleName,
+          lastName,
+          address,
           email,
           dateOfBirth: dob,
           phone,
@@ -254,6 +312,15 @@ const ConsentForm = () => {
           rulesAgreed,
           signature: signatureDataURL,
           pdfURL: pdfDownloadURL,
+          isMinor,
+          guardian: isMinor
+            ? {
+              name: guardianName,
+              relationship: guardianRel,
+              phone: guardianPhone,
+              email: guardianEmail,
+            }
+            : null,
         }),
       })
 
@@ -297,15 +364,29 @@ const ConsentForm = () => {
 
       <form onSubmit={handleSubmit}>
         {/* Basic Info */}
+
+        {/* Participant’s Full Name */}
+        <h4>Participant’s Full Name</h4>
+        <div className="row g-2 mb-3">
+          <div className="col">
+            <input className="form-control" placeholder="First" required
+              value={firstName} onChange={e => setFirst(e.target.value)} />
+          </div>
+          <div className="col">
+            <input className="form-control" placeholder="Middle"
+              value={middleName} onChange={e => setMiddle(e.target.value)} />
+          </div>
+          <div className="col">
+            <input className="form-control" placeholder="Last" required
+              value={lastName} onChange={e => setLast(e.target.value)} />
+          </div>
+        </div>
+
+        {/* Address */}
         <div className="mb-3">
-          <label className="form-label">Full Name:</label>
-          <input
-            type="text"
-            required
-            className="form-control"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <label className="form-label">Address:</label>
+          <input className="form-control" required
+            value={address} onChange={e => setAddress(e.target.value)} />
         </div>
 
         <div className="mb-3">
@@ -340,7 +421,57 @@ const ConsentForm = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
+        {/* ---------- Guardian block (only if minor) ---------- */}
+        {isMinor && (
+          <>
+            <hr />
+            <h4>Parent / Guardian (required for minors)</h4>
 
+            <div className="mb-3">
+              <label className="form-label">Guardian Name:</label>
+              <input
+                type="text"
+                required
+                className="form-control"
+                value={guardianName}
+                onChange={(e) => setGuardianName(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Relationship:</label>
+              <input
+                type="text"
+                required
+                className="form-control"
+                value={guardianRel}
+                onChange={(e) => setGuardianRel(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Guardian Phone:</label>
+              <input
+                type="tel"
+                required
+                className="form-control"
+                value={guardianPhone}
+                onChange={(e) => setGuardianPhone(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Guardian Email:</label>
+              <input
+                type="email"
+                required
+                className="form-control"
+                value={guardianEmail}
+                onChange={(e) => setGuardianEmail(e.target.value)}
+              />
+            </div>
+          </>
+        )}
         {/* Emergency Contact */}
         <hr />
         <h4>Emergency Contact</h4>
@@ -438,6 +569,7 @@ const ConsentForm = () => {
         {/* Signature */}
         <hr />
         <h4>Signature</h4>
+        <h4>{isMinor ? 'Parent / Guardian Signature' : 'Participant Signature'}</h4>
         <p className="text-muted">Please sign below to indicate your acceptance.</p>
         <div
           style={{
