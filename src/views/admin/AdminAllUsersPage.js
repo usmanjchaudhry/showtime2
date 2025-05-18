@@ -25,7 +25,7 @@ function AdminAllUsersPage() {
         setError('');
 
         const token = await user.getIdToken(true);
-        const res   = await fetch('http://localhost:8080/api/admin/raw-users', {
+        const res   = await fetch('https://showtime-backend-1.onrender.com/api/admin/raw-users', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error(await res.text() || `HTTP ${res.status}`);
